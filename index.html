@@ -379,13 +379,10 @@
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-content">
-    <div style="max-width:700px; margin:0 auto;">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <div class="hero-content" style="width:90%;max-width:800px;">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" id="fabas-logo" style="max-width:100%;height:auto;background:#050508;">
   <defs>
-    
-
-    <!-- Main text gradient -->
+<!-- Main text gradient -->
     <linearGradient id="mainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1"/>
       <stop offset="18%" style="stop-color:#88ddff;stop-opacity:1"/>
@@ -462,25 +459,25 @@
 
   <!-- BACKGROUND -->
   <rect width="800" height="500" fill="#050508"/>
-  <g>
-    <ellipse cx="400" cy="235" rx="350" ry="170" fill="#0a1828" opacity="0.7"/>
-    <ellipse cx="400" cy="235" rx="220" ry="100" fill="#0f2845" opacity="0.5"/>
+  <g id="bg-glow" opacity="0">
+    <ellipse cx="400" cy="235" rx="350" ry="170" fill="#0a1828" opacity="0.9"/>
+    <ellipse cx="400" cy="235" rx="220" ry="100" fill="#0f2845" opacity="0.75"/>
   </g>
 
   <!-- GLASS SHARDS (fly in from edges) -->
-  <g filter="url(#shardGlow)">
-    <polygon points="78,82 128,60 148,135 92,152" fill="url(#shardBlue)" stroke="#7bbce6" stroke-width="0.7" opacity="0.55"/>
+  <g id="shard-1" class="shard" opacity="0" filter="url(#shardGlow)">
+    <polygon points="78,82 128,60 148,135 92,152" fill="url(#shardBlue)" stroke="#7bbce6" stroke-width="0.7" opacity="0.7"/>
   </g>
-  <g filter="url(#shardGlow)">
-    <polygon points="652,72 718,90 700,162 645,138" fill="url(#shardPurple)" stroke="#aa99ee" stroke-width="0.7" opacity="0.5"/>
+  <g id="shard-2" class="shard" opacity="0" filter="url(#shardGlow)">
+    <polygon points="652,72 718,90 700,162 645,138" fill="url(#shardPurple)" stroke="#aa99ee" stroke-width="0.7" opacity="0.65"/>
   </g>
-  <g filter="url(#shardGlow)">
+  <g id="shard-3" class="shard" opacity="0" filter="url(#shardGlow)">
     <polygon points="48,210 82,192 108,235 66,248" fill="url(#shardBlue)" stroke="#4a9fd9" stroke-width="0.5" opacity="0.4"/>
   </g>
-  <g filter="url(#shardGlow)">
+  <g id="shard-4" class="shard" opacity="0" filter="url(#shardGlow)">
     <polygon points="712,218 748,200 760,252 722,262" fill="url(#shardPurple)" stroke="#8877cc" stroke-width="0.5" opacity="0.35"/>
   </g>
-  <g>
+  <g id="shard-5" class="shard" opacity="0">
     <polygon points="162,158 188,145 196,178 168,185" fill="#4a9fd9" stroke="#7bbce6" stroke-width="0.3" opacity="0.3"/>
     <polygon points="618,150 646,160 636,195 612,182" fill="#7766bb" stroke="#aa99ee" stroke-width="0.3" opacity="0.25"/>
     <polygon points="198,96 212,88 218,110" fill="#7bbce6" opacity="0.35"/>
@@ -488,7 +485,7 @@
   </g>
 
   <!-- DUAL MASK SYMBOL (appears first) -->
-  <g>
+  <g id="mask-symbol" opacity="0">
     <g transform="translate(400, 100)">
       <path d="M-2,0 C-2,-25 -15,-48 -32,-55 C-42,-58 -52,-50 -55,-38 C-58,-22 -55,-5 -52,10 C-50,18 -45,28 -38,35 C-30,42 -20,45 -10,42 C-5,40 -2,35 -2,28Z"
         fill="url(#maskLeftGrad)" stroke="#5ab8e0" stroke-width="0.8" opacity="0.7"/>
@@ -506,14 +503,14 @@
   </g>
 
   <!-- MAIN TEXT (dramatic burst entrance) -->
-  <g clip-path="url(#leftClip)" fill="url(#mainGrad)" filter="url(#glow)">
+  <g id="main-text-left" opacity="0" clip-path="url(#leftClip)" fill="url(#mainGrad)" filter="url(#glow)">
       <path d="M96 0V121H287V1372H96V1493H1427V1141H1290V1356H674V877H1053V1067H1190V551H1053V741H674V121H909V0Z" transform="translate(151.6,248.0) scale(0.063477,-0.063477)"/>
       <path d="M1128 653V121H1280V0H774V135Q704 51 618.0 11.0Q532 -29 422 -29Q259 -29 171.5 58.5Q84 146 84 309Q84 488 209.5 577.0Q335 666 588 666H774V729Q774 858 713.0 919.5Q652 981 524 981Q418 981 360.5 937.5Q303 894 279 795H166V1024Q261 1058 363.0 1075.0Q465 1092 578 1092Q863 1092 995.5 986.0Q1128 880 1128 653ZM774 334V547H641Q542 547 489.0 493.0Q436 439 436 338Q436 237 474.5 187.0Q513 137 592 137Q674 137 724.0 191.0Q774 245 774 334Z" transform="translate(261.9,248.0) scale(0.063477,-0.063477)"/>
       <path d="M199 121V1436H47V1556H553V928Q598 1011 674.0 1051.5Q750 1092 862 1092Q1089 1092 1219.5 942.5Q1350 793 1350 532Q1350 271 1219.5 121.0Q1089 -29 862 -29Q750 -29 674.0 11.5Q598 52 553 135V0H47V121ZM553 479Q553 293 600.5 210.0Q648 127 754 127Q863 127 907.5 215.0Q952 303 952 532Q952 761 907.5 848.5Q863 936 754 936Q648 936 600.5 853.0Q553 770 553 584Z" transform="translate(364.1,248.0) scale(0.063477,-0.063477)"/>
       <path d="M1128 653V121H1280V0H774V135Q704 51 618.0 11.0Q532 -29 422 -29Q259 -29 171.5 58.5Q84 146 84 309Q84 488 209.5 577.0Q335 666 588 666H774V729Q774 858 713.0 919.5Q652 981 524 981Q418 981 360.5 937.5Q303 894 279 795H166V1024Q261 1058 363.0 1075.0Q465 1092 578 1092Q863 1092 995.5 986.0Q1128 880 1128 653ZM774 334V547H641Q542 547 489.0 493.0Q436 439 436 338Q436 237 474.5 187.0Q513 137 592 137Q674 137 724.0 191.0Q774 245 774 334Z" transform="translate(473.0,248.0) scale(0.063477,-0.063477)"/>
       <path d="M96 31V328H209Q223 209 298.0 146.5Q373 84 502 84Q610 84 667.5 121.5Q725 159 725 229Q725 293 688.5 328.0Q652 363 547 389L401 426Q236 467 162.0 543.5Q88 620 88 750Q88 923 208.0 1007.5Q328 1092 578 1092Q672 1092 778.5 1076.5Q885 1061 1014 1028V760H901Q892 869 823.5 924.0Q755 979 627 979Q519 979 463.5 944.5Q408 910 408 844Q408 790 440.0 759.0Q472 728 555 707L700 670Q909 617 989.0 539.0Q1069 461 1069 322Q1069 142 940.5 56.5Q812 -29 541 -29Q442 -29 331.0 -14.0Q220 1 96 31Z" transform="translate(575.2,248.0) scale(0.063477,-0.063477)"/>
   </g>
-  <g clip-path="url(#rightClip)" fill="url(#mainGrad)" filter="url(#chromatic)">
+  <g id="main-text-right" opacity="0" clip-path="url(#rightClip)" fill="url(#mainGrad)" filter="url(#chromatic)">
       <path d="M96 0V121H287V1372H96V1493H1427V1141H1290V1356H674V877H1053V1067H1190V551H1053V741H674V121H909V0Z" transform="translate(151.6,248.0) scale(0.063477,-0.063477)"/>
       <path d="M1128 653V121H1280V0H774V135Q704 51 618.0 11.0Q532 -29 422 -29Q259 -29 171.5 58.5Q84 146 84 309Q84 488 209.5 577.0Q335 666 588 666H774V729Q774 858 713.0 919.5Q652 981 524 981Q418 981 360.5 937.5Q303 894 279 795H166V1024Q261 1058 363.0 1075.0Q465 1092 578 1092Q863 1092 995.5 986.0Q1128 880 1128 653ZM774 334V547H641Q542 547 489.0 493.0Q436 439 436 338Q436 237 474.5 187.0Q513 137 592 137Q674 137 724.0 191.0Q774 245 774 334Z" transform="translate(261.9,248.0) scale(0.063477,-0.063477)"/>
       <path d="M199 121V1436H47V1556H553V928Q598 1011 674.0 1051.5Q750 1092 862 1092Q1089 1092 1219.5 942.5Q1350 793 1350 532Q1350 271 1219.5 121.0Q1089 -29 862 -29Q750 -29 674.0 11.5Q598 52 553 135V0H47V121ZM553 479Q553 293 600.5 210.0Q648 127 754 127Q863 127 907.5 215.0Q952 303 952 532Q952 761 907.5 848.5Q863 936 754 936Q648 936 600.5 853.0Q553 770 553 584Z" transform="translate(364.1,248.0) scale(0.063477,-0.063477)"/>
@@ -522,7 +519,7 @@
   </g>
 
   <!-- GLITCH BLOCKS (flash in) -->
-  <g>
+  <g id="glitch-blocks" class="glitch" opacity="0">
     <rect x="420" y="200" width="48" height="4" fill="#2299dd" opacity="0.3"/>
     <rect x="345" y="225" width="65" height="3" fill="#8866cc" opacity="0.25"/>
     <rect x="460" y="238" width="38" height="5" fill="#3399dd" opacity="0.2"/>
@@ -531,9 +528,9 @@
   </g>
 
   <!-- BOUNDARY LINE (draws from center) -->
-  <line x1="40" y1="268" x2="760" y2="268" stroke="url(#boundaryGrad)" stroke-width="1.5"/>
-  <line x1="70" y1="270" x2="730" y2="270" stroke="url(#boundaryGrad)" stroke-width="0.4" opacity="0.5"/>
-  <g>
+  <line id="boundary1" opacity="0" x1="40" y1="268" x2="760" y2="268" stroke="url(#boundaryGrad)" stroke-width="1.5"/>
+  <line id="boundary2" opacity="0" x1="70" y1="270" x2="730" y2="270" stroke="url(#boundaryGrad)" stroke-width="0.4" opacity="0.5"/>
+  <g id="glitch-blocks2" class="glitch" opacity="0">
     <rect x="190" y="264" width="28" height="5" fill="#7bbce6" opacity="0.35"/>
     <rect x="370" y="265" width="20" height="6" fill="#a0d8f0" opacity="0.3"/>
     <rect x="510" y="263" width="32" height="5" fill="#4a9fd9" opacity="0.3"/>
@@ -541,7 +538,7 @@
   </g>
 
   <!-- REFLECTION (fades in after text) -->
-  <g mask="url(#reflMask)">
+  <g id="reflection" opacity="0" mask="url(#reflMask)">
     <g transform="translate(0, 516) scale(1, -1)" fill="url(#fictionGrad)" filter="url(#distort)">
         <path d="M96 0V121H287V1372H96V1493H1427V1141H1290V1356H674V877H1053V1067H1190V551H1053V741H674V121H909V0Z" transform="translate(151.6,248.0) scale(0.063477,-0.063477)"/>
         <path d="M1128 653V121H1280V0H774V135Q704 51 618.0 11.0Q532 -29 422 -29Q259 -29 171.5 58.5Q84 146 84 309Q84 488 209.5 577.0Q335 666 588 666H774V729Q774 858 713.0 919.5Q652 981 524 981Q418 981 360.5 937.5Q303 894 279 795H166V1024Q261 1058 363.0 1075.0Q465 1092 578 1092Q863 1092 995.5 986.0Q1128 880 1128 653ZM774 334V547H641Q542 547 489.0 493.0Q436 439 436 338Q436 237 474.5 187.0Q513 137 592 137Q674 137 724.0 191.0Q774 245 774 334Z" transform="translate(261.9,248.0) scale(0.063477,-0.063477)"/>
@@ -566,7 +563,7 @@
   </g>
 
   <!-- CORNER FRAMES -->
-  <g stroke="#4a9fd9" stroke-width="1.2" opacity="0.4">
+  <g id="corners" opacity="0" stroke="#4a9fd9" stroke-width="1.2" opacity="0.4">
     <line x1="28" y1="22" x2="28" y2="68"/><line x1="28" y1="22" x2="74" y2="22"/>
     <line x1="772" y1="22" x2="772" y2="68"/><line x1="772" y1="22" x2="726" y2="22"/>
     <line x1="28" y1="478" x2="28" y2="432"/><line x1="28" y1="478" x2="74" y2="478"/>
@@ -574,24 +571,24 @@
   </g>
 
   <!-- PARTICLES (twinkle continuously) -->
-  <g>
-    <circle cx="142" cy="76" r="2.2" fill="#7bbce6" opacity="0.55"/>
-    <circle cx="658" cy="68" r="1.8" fill="#aa99ee" opacity="0.45"/>
-    <circle cx="92" cy="178" r="1.5" fill="#4a9fd9" opacity="0.45"/>
-    <circle cx="708" cy="172" r="2" fill="#9988dd" opacity="0.4"/>
-    <circle cx="248" cy="46" r="1.2" fill="#d0eaf8" opacity="0.65"/>
-    <circle cx="558" cy="50" r="1.5" fill="#b0d0f0" opacity="0.5"/>
-    <circle cx="348" cy="36" r="1" fill="#ffffff" opacity="0.55"/>
-    <circle cx="462" cy="30" r="0.8" fill="#ffffff" opacity="0.5"/>
-    <circle cx="178" cy="360" r="1.2" fill="#4a9fd9" opacity="0.22"/>
-    <circle cx="622" cy="372" r="1.5" fill="#8877cc" opacity="0.18"/>
+  <g id="particles" opacity="0">
+    <circle class="particle" cx="142" cy="76" r="2.2" fill="#7bbce6" opacity="0.55"/>
+    <circle class="particle" cx="658" cy="68" r="1.8" fill="#aa99ee" opacity="0.45"/>
+    <circle class="particle" cx="92" cy="178" r="1.5" fill="#4a9fd9" opacity="0.45"/>
+    <circle class="particle" cx="708" cy="172" r="2" fill="#9988dd" opacity="0.4"/>
+    <circle class="particle" cx="248" cy="46" r="1.2" fill="#d0eaf8" opacity="0.65"/>
+    <circle class="particle" cx="558" cy="50" r="1.5" fill="#b0d0f0" opacity="0.5"/>
+    <circle class="particle" cx="348" cy="36" r="1" fill="#ffffff" opacity="0.55"/>
+    <circle class="particle" cx="462" cy="30" r="0.8" fill="#ffffff" opacity="0.5"/>
+    <circle class="particle" cx="178" cy="360" r="1.2" fill="#4a9fd9" opacity="0.22"/>
+    <circle class="particle" cx="622" cy="372" r="1.5" fill="#8877cc" opacity="0.18"/>
   </g>
 
   <!-- SCAN LINES -->
-  <rect width="800" height="500" fill="url(#scan)"/>
+  <rect id="scanlines" opacity="0" width="800" height="500" fill="url(#scan)"/>
 
   <!-- LABELS (appear last) -->
-  <g>
+  <g id="labels" opacity="0">
     <text x="56" y="52" font-family="'Courier New', monospace" font-size="8" fill="#5ab0dd" opacity="0.4" letter-spacing="2">TRUTH</text>
     <text x="696" y="52" font-family="'Courier New', monospace" font-size="8" fill="#9988dd" opacity="0.4" letter-spacing="2">LIES</text>
     <text x="46" y="465" font-family="'Courier New', monospace" font-size="6.5" fill="#3a6a8a" opacity="0.25" letter-spacing="2">01110100 01110010 01110101 01110100 01101000</text>
@@ -600,8 +597,7 @@
   </g>
 
 </svg>
-    </div>
-    <div class="hero-line" style="margin-top:2rem;"></div>
+    <div class="hero-line"></div>
   </div>
 </section>
 
@@ -857,6 +853,239 @@
     const n = document.querySelector('nav');
     n.style.background = window.scrollY > 80 ? 'rgba(5,5,8,0.9)' : 'rgba(5,5,8,0.6)';
   });
+
+
+  // ========== FABAS LOGO ANIMATION ENGINE ==========
+  (function() {
+    const svg = document.getElementById('fabas-logo');
+    if (!svg) return;
+
+    // Utility: animate element with Web Animations API
+    function animEl(id, keyframes, options) {
+      const el = svg.getElementById ? svg.getElementById(id) : document.getElementById(id);
+      if (!el) return null;
+      return el.animate(keyframes, options);
+    }
+
+    // Utility: set attribute after delay
+    function showAfter(id, delay, finalOpacity) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      setTimeout(() => {
+        el.setAttribute('opacity', finalOpacity || '1');
+      }, delay);
+    }
+
+    // === ANIMATION TIMELINE ===
+
+    // 0. Initial state - all hidden (already set in SVG)
+
+    // 1. Background glow fade in (0.3s delay, 2s duration)
+    setTimeout(() => {
+      const bg = document.getElementById('bg-glow');
+      if (bg) {
+        bg.animate([
+          { opacity: 0 },
+          { opacity: 1 }
+        ], { duration: 2000, easing: 'ease-out', fill: 'forwards' });
+      }
+    }, 300);
+
+    // 2. Mask symbol appears with scale (0.8s delay)
+    setTimeout(() => {
+      const mask = document.getElementById('mask-symbol');
+      if (mask) {
+        mask.animate([
+          { opacity: 0, transform: 'scale(0.3) translateY(20px)' },
+          { opacity: 0.9, transform: 'scale(1.1) translateY(-3px)', offset: 0.6 },
+          { opacity: 1, transform: 'scale(1) translateY(0)' }
+        ], { duration: 1500, easing: 'ease-out', fill: 'forwards' });
+      }
+    }, 800);
+
+    // 3. Main text dramatic burst (1.8s delay for left, 1.9s for right)
+    setTimeout(() => {
+      const left = document.getElementById('main-text-left');
+      if (left) {
+        left.animate([
+          { opacity: 0, transform: 'scale(1.8)', filter: 'blur(15px)' },
+          { opacity: 1, transform: 'scale(0.95)', filter: 'blur(0px)', offset: 0.4 },
+          { opacity: 1, transform: 'scale(1.03)', offset: 0.7 },
+          { opacity: 1, transform: 'scale(1)', filter: 'blur(0px)' }
+        ], { duration: 1200, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' });
+      }
+    }, 1800);
+
+    setTimeout(() => {
+      const right = document.getElementById('main-text-right');
+      if (right) {
+        right.animate([
+          { opacity: 0, transform: 'scale(1.8)', filter: 'blur(15px)' },
+          { opacity: 1, transform: 'scale(0.95)', filter: 'blur(0px)', offset: 0.4 },
+          { opacity: 1, transform: 'scale(1.03)', offset: 0.7 },
+          { opacity: 1, transform: 'scale(1)', filter: 'blur(0px)' }
+        ], { duration: 1200, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' });
+      }
+    }, 1900);
+
+    // 4. Shards fly in (2.2-2.8s)
+    const shardAnimations = [
+      { id: 'shard-1', delay: 2200, from: 'translate(-80px, -60px) rotate(-20deg)' },
+      { id: 'shard-2', delay: 2400, from: 'translate(80px, -60px) rotate(20deg)' },
+      { id: 'shard-3', delay: 2600, from: 'translate(-60px, 40px) rotate(-15deg)' },
+      { id: 'shard-4', delay: 2800, from: 'translate(60px, 40px) rotate(15deg)' },
+      { id: 'shard-5', delay: 2600, from: 'translate(0, 30px)' }
+    ];
+    shardAnimations.forEach(s => {
+      setTimeout(() => {
+        const el = document.getElementById(s.id);
+        if (el) {
+          el.animate([
+            { opacity: 0, transform: s.from },
+            { opacity: 1, transform: 'translate(0,0) rotate(0deg)' }
+          ], { duration: 1000, easing: 'ease-out', fill: 'forwards' });
+        }
+      }, s.delay);
+    });
+
+    // 5. Boundary lines draw in (2.5s)
+    setTimeout(() => {
+      const b1 = document.getElementById('boundary1');
+      const b2 = document.getElementById('boundary2');
+      if (b1) {
+        b1.setAttribute('stroke-dasharray', '720');
+        b1.setAttribute('stroke-dashoffset', '720');
+        b1.setAttribute('opacity', '1');
+        b1.animate([
+          { strokeDashoffset: 720 },
+          { strokeDashoffset: 0 }
+        ], { duration: 1000, easing: 'ease-out', fill: 'forwards' });
+      }
+      if (b2) {
+        setTimeout(() => {
+          b2.setAttribute('stroke-dasharray', '660');
+          b2.setAttribute('stroke-dashoffset', '660');
+          b2.setAttribute('opacity', '0.5');
+          b2.animate([
+            { strokeDashoffset: 660 },
+            { strokeDashoffset: 0 }
+          ], { duration: 800, easing: 'ease-out', fill: 'forwards' });
+        }, 200);
+      }
+    }, 2500);
+
+    // 6. Reflection fade in (2.8s)
+    setTimeout(() => {
+      const r = document.getElementById('reflection');
+      if (r) {
+        r.animate([
+          { opacity: 0 }, { opacity: 1 }
+        ], { duration: 1500, easing: 'ease-out', fill: 'forwards' });
+      }
+    }, 2800);
+
+    // 7. Glitch blocks flash (3s)
+    [('glitch-blocks'), ('glitch-blocks2')].forEach(id => {
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.animate([
+            { opacity: 0 },
+            { opacity: 0.8, offset: 0.05 },
+            { opacity: 0, offset: 0.1 },
+            { opacity: 0.6, offset: 0.15 },
+            { opacity: 0.1, offset: 0.2 },
+            { opacity: 0.7, offset: 0.25 },
+            { opacity: 0.2, offset: 0.3 },
+            { opacity: 1 }
+          ], { duration: 3000, easing: 'ease-in-out', fill: 'forwards' });
+        }
+      }, 3000);
+    });
+
+    // 8. Corner frames (3.2s)
+    setTimeout(() => {
+      const c = document.getElementById('corners');
+      if (c) {
+        c.animate([
+          { opacity: 0 }, { opacity: 1 }
+        ], { duration: 800, easing: 'ease-out', fill: 'forwards' });
+      }
+    }, 3200);
+
+    // 9. Labels + tagline (3.5s)
+    setTimeout(() => {
+      const l = document.getElementById('labels');
+      if (l) {
+        l.animate([
+          { opacity: 0 }, { opacity: 1 }
+        ], { duration: 1200, easing: 'ease-out', fill: 'forwards' });
+      }
+    }, 3500);
+
+    // 10. Particles fade in (2s) + continuous twinkle
+    setTimeout(() => {
+      const p = document.getElementById('particles');
+      if (p) {
+        p.animate([
+          { opacity: 0 }, { opacity: 1 }
+        ], { duration: 1000, easing: 'ease-out', fill: 'forwards' });
+
+        // Continuous twinkle for each particle
+        const particles = p.querySelectorAll('.particle');
+        particles.forEach((dot, i) => {
+          dot.animate([
+            { opacity: 0.2 },
+            { opacity: 0.8 },
+            { opacity: 0.3 }
+          ], { duration: 3000, delay: i * 400, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' });
+        });
+      }
+    }, 2000);
+
+    // 11. Scan lines (3s)
+    setTimeout(() => {
+      const s = document.getElementById('scanlines');
+      if (s) {
+        s.animate([
+          { opacity: 0 }, { opacity: 1 }
+        ], { duration: 1000, easing: 'ease-out', fill: 'forwards' });
+      }
+    }, 3000);
+
+    // === CONTINUOUS ANIMATIONS (after entrance) ===
+
+    // Shard floating
+    setTimeout(() => {
+      document.querySelectorAll('.shard').forEach((el, i) => {
+        const dur = 6000 + i * 1000;
+        const dist = i % 2 === 0 ? -8 : 6;
+        const rot = i % 2 === 0 ? 2 : -2;
+        el.animate([
+          { transform: 'translateY(0) rotate(0deg)' },
+          { transform: `translateY(${dist}px) rotate(${rot}deg)` }
+        ], { duration: dur, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' });
+      });
+    }, 4000);
+
+    // Continuous glitch flicker on main text
+    setTimeout(() => {
+      const left = document.getElementById('main-text-left');
+      if (left) {
+        left.animate([
+          { opacity: 1, transform: 'translateX(0)' },
+          { opacity: 1, transform: 'translateX(0)', offset: 0.90 },
+          { opacity: 0.4, transform: 'translateX(2px)', offset: 0.92 },
+          { opacity: 0.9, transform: 'translateX(-1px)', offset: 0.94 },
+          { opacity: 0.5, transform: 'translateX(3px)', offset: 0.96 },
+          { opacity: 1, transform: 'translateX(0)', offset: 0.98 },
+          { opacity: 1, transform: 'translateX(0)' }
+        ], { duration: 8000, iterations: Infinity, easing: 'ease-in-out' });
+      }
+    }, 4500);
+
+  })();
+
 </script>
 
 </body>
