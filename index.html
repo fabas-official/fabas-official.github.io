@@ -108,19 +108,19 @@
   .inner { max-width: 1100px; margin: 0 auto; }
   .sec-label {
     font-size: 0.6rem; letter-spacing: 6px; text-transform: uppercase;
-    color: var(--blue2); margin-bottom: 1rem;
+    color: var(--blue3); margin-bottom: 1rem;
   }
   .sec-title {
     font-family: 'Cormorant Garamond', serif;
     font-size: 2.8rem; font-weight: 300; letter-spacing: 3px;
-    color: var(--white); margin-bottom: 0.5rem;
+    color: #fff; margin-bottom: 0.5rem;
   }
   .sec-line {
     width: 40px; height: 1px;
-    background: var(--blue2); margin: 1.5rem 0 2rem;
+    background: var(--blue3); margin: 1.5rem 0 2rem;
   }
   .sec-desc {
-    color: var(--text-dim); font-weight: 300;
+    color: var(--text); font-weight: 300;
     line-height: 2; max-width: 600px; font-size: 0.9rem;
   }
 
@@ -165,14 +165,15 @@
 
   /* ===== MEMBERS (Ado風：ミステリアスなプロフィール) ===== */
   #members { background: var(--bg2); }
+  #members .sec-title { color: #fff; }
   .members-wrap {
     display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 0; border: 1px solid var(--border);
+    gap: 0; border: 1px solid rgba(74,142,201,0.15);
   }
   .m-card {
     padding: 4rem 2.5rem; text-align: center;
     position: relative; overflow: hidden;
-    border-right: 1px solid var(--border);
+    border-right: 1px solid rgba(74,142,201,0.15);
     transition: all 0.6s;
   }
   .m-card:last-child { border-right: none; }
@@ -186,33 +187,33 @@
   .m-glyph {
     font-family: 'Cormorant Garamond', serif;
     font-size: 6rem; font-weight: 300;
-    color: var(--blue2); opacity: 0.3;
+    color: var(--blue3); opacity: 0.6;
     line-height: 1; margin-bottom: 1rem;
     transition: opacity 0.4s;
   }
-  .m-card:hover .m-glyph { opacity: 0.7; }
+  .m-card:hover .m-glyph { opacity: 0.9; }
   .m-tag {
     font-family: monospace; font-size: 0.6rem;
-    color: var(--text-dim); letter-spacing: 4px;
-    opacity: 0.5; margin-bottom: 2rem;
+    color: var(--text); letter-spacing: 4px;
+    opacity: 0.7; margin-bottom: 2rem;
   }
   .m-name {
     font-family: 'Cormorant Garamond', serif;
     font-size: 2rem; font-weight: 300;
-    color: var(--white); letter-spacing: 4px;
+    color: #fff; letter-spacing: 4px;
     margin-bottom: 0.3rem;
   }
   .m-name-sub {
-    font-size: 0.7rem; color: var(--text-dim);
+    font-size: 0.7rem; color: var(--text);
     letter-spacing: 3px; margin-bottom: 1.5rem;
   }
   .m-role {
     font-size: 0.65rem; letter-spacing: 5px;
-    color: var(--blue3); text-transform: uppercase;
+    color: #8dd4ff; text-transform: uppercase;
     margin-bottom: 2rem;
   }
   .m-words {
-    font-size: 0.85rem; color: var(--text-dim);
+    font-size: 0.85rem; color: var(--text);
     line-height: 2; font-weight: 300;
     font-style: italic;
   }
@@ -225,12 +226,12 @@
   }
   .track {
     background: var(--surface);
-    border: 1px solid var(--border);
+    border: 1px solid rgba(74,142,201,0.15);
     overflow: hidden;
     transition: all 0.4s;
   }
   .track:hover {
-    border-color: rgba(74,142,201,0.2);
+    border-color: rgba(74,142,201,0.3);
     box-shadow: 0 8px 30px rgba(0,0,0,0.3);
     transform: translateY(-2px);
   }
@@ -240,14 +241,14 @@
   }
   .track-num {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 1.5rem; color: var(--blue2); opacity: 0.4;
+    font-size: 1.5rem; color: var(--blue3); opacity: 0.7;
     min-width: 35px;
   }
   .track-title {
     font-size: 0.9rem; font-weight: 400;
-    color: var(--white); letter-spacing: 1px;
+    color: #fff; letter-spacing: 1px;
   }
-  .track-meta { font-size: 0.7rem; color: var(--text-dim); margin-top: 2px; }
+  .track-meta { font-size: 0.7rem; color: var(--text); margin-top: 2px; }
   .track-video {
     position: relative; width: 100%;
     padding-bottom: 56.25%; background: #000;
@@ -299,16 +300,16 @@
   #shop { background: var(--bg); }
   .shop-box {
     text-align: center; padding: 5rem 2rem;
-    border: 1px solid var(--border);
+    border: 1px solid rgba(74,142,201,0.15);
     position: relative;
   }
   .shop-box h3 {
     font-family: 'Cormorant Garamond', serif;
     font-size: 2rem; font-weight: 300;
-    color: var(--blue3); letter-spacing: 8px;
+    color: #8dd4ff; letter-spacing: 8px;
     margin-bottom: 1.5rem;
   }
-  .shop-box p { color: var(--text-dim); font-weight: 300; line-height: 1.8; }
+  .shop-box p { color: var(--text); font-weight: 300; line-height: 1.8; }
 
   /* ===== LINKS ===== */
   #links { background: var(--bg2); }
@@ -319,8 +320,8 @@
   .l-btn {
     display: inline-flex; align-items: center; gap: 0.6rem;
     padding: 1rem 2.5rem;
-    border: 1px solid var(--border);
-    color: var(--text); text-decoration: none;
+    border: 1px solid rgba(74,142,201,0.2);
+    color: #e0e6ef; text-decoration: none;
     font-size: 0.8rem; letter-spacing: 3px;
     transition: all 0.4s;
   }
@@ -336,12 +337,12 @@
     text-align: center; padding: 4rem 2rem 3rem;
     border-top: 1px solid var(--border);
   }
-  footer p { font-size: 0.7rem; color: var(--text-dim); letter-spacing: 3px; }
+  footer p { font-size: 0.7rem; color: var(--text); letter-spacing: 3px; }
   footer .f-logo {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 1.2rem; color: var(--blue2);
+    font-size: 1.2rem; color: var(--blue3);
     letter-spacing: 8px; margin-bottom: 1rem;
-    opacity: 0.5;
+    opacity: 0.8;
   }
 
   /* ===== SCROLL ANIMATIONS ===== */
@@ -663,8 +664,8 @@
       <div class="m-card">
         <div class="m-glyph">U</div>
         <p class="m-tag">architect</p>
-        <h3 class="m-name">うっちー</h3>
-        <p class="m-name-sub">ウッチー</p>
+        <h3 class="m-name">うっちーP</h3>
+        <p class="m-name-sub">ウッチーP</p>
         <p class="m-role">Lyrics &amp; Composition</p>
         <p class="m-words">
           嘘から始まる真実がある。<br>
