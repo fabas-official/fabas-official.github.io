@@ -59,6 +59,7 @@
     text-align: center; position: relative;
     background: var(--bg);
     overflow: hidden;
+    padding-bottom: 0;
   }
   .hero::before {
     content: ''; position: absolute;
@@ -92,7 +93,7 @@
     animation: fadeUp 1.5s ease-out 0.5s both;
   }
   .hero-line {
-    width: 1px; height: 80px;
+    width: 1px; height: 40px;
     background: linear-gradient(180deg, var(--blue2), transparent);
     margin: 0 auto;
     animation: fadeUp 1.5s ease-out 1s both;
@@ -127,6 +128,7 @@
   #concept {
     background: var(--bg);
     min-height: 80vh; display: flex; align-items: center;
+    padding-top: 60px;
   }
   .concept-layout {
     display: grid; grid-template-columns: 1fr 1fr;
@@ -380,7 +382,7 @@
 <!-- HERO -->
 <section class="hero">
   <div class="hero-content" style="width:90%;max-width:800px;">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" id="fabas-logo" style="max-width:100%;height:auto;background:#050508;">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 492" id="fabas-logo" style="max-width:100%;height:auto;background:#050508;">
   <defs>
 <!-- Main text gradient -->
     <linearGradient id="mainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
