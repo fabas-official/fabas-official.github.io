@@ -4,13 +4,370 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fabas（ファバス）- Official Website</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;300;400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&display=swap');
 
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #050508;
+    --bg2: #0a0a10;
+    --surface: #0f0f18;
+    --blue1: #2d5a8e;
+    --blue2: #4a8ec9;
+    --blue3: #7bbce6;
+    --ice: #b8dff0;
+    --text: #c8d0dc;
+    --text-dim: #5a6070;
+    --white: #e8ecf2;
+    --border: rgba(74,142,201,0.08);
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg); color: var(--text);
+    overflow-x: hidden; font-weight: 300;
+  }
+
+  /* ===== NAV ===== */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 0 3rem; height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(5,5,8,0.6); backdrop-filter: blur(30px);
+    border-bottom: 1px solid var(--border);
+    transition: all 0.4s;
+  }
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem; font-weight: 300; letter-spacing: 6px;
+    color: var(--blue3);
+  }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a {
+    color: var(--text-dim); text-decoration: none;
+    font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase;
+    transition: color 0.4s; font-weight: 400;
+  }
+  .nav-links a:hover { color: var(--blue3); }
+
+  /* ===== HERO (米津風：巨大タイポ + ミニマル) ===== */
+  .hero {
+    min-height: 100vh; display: flex;
+    flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; position: relative;
+    background: var(--bg);
+    overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(45,90,142,0.12) 0%, transparent 70%);
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    animation: heroPulse 8s ease-in-out infinite;
+  }
+  @keyframes heroPulse {
+    0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.3); }
+  }
+  .hero-content { position: relative; z-index: 1; }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(5rem, 15vw, 12rem);
+    font-weight: 300; letter-spacing: 0.3em;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--blue2);
+    line-height: 1; margin-bottom: 2rem;
+    animation: titleReveal 2s ease-out;
+  }
+  @keyframes titleReveal {
+    0% { opacity: 0; letter-spacing: 1em; }
+    100% { opacity: 1; letter-spacing: 0.3em; }
+  }
+  .hero-sub {
+    font-size: 0.75rem; letter-spacing: 8px;
+    color: var(--text-dim); text-transform: uppercase;
+    margin-bottom: 3rem;
+    animation: fadeUp 1.5s ease-out 0.5s both;
+  }
+  .hero-line {
+    width: 1px; height: 80px;
+    background: linear-gradient(180deg, var(--blue2), transparent);
+    margin: 0 auto;
+    animation: fadeUp 1.5s ease-out 1s both;
+  }
+  @keyframes fadeUp {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== SECTIONS ===== */
+  section { padding: 120px 3rem; position: relative; }
+  .inner { max-width: 1100px; margin: 0 auto; }
+  .sec-label {
+    font-size: 0.6rem; letter-spacing: 6px; text-transform: uppercase;
+    color: var(--blue2); margin-bottom: 1rem;
+  }
+  .sec-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.8rem; font-weight: 300; letter-spacing: 3px;
+    color: var(--white); margin-bottom: 0.5rem;
+  }
+  .sec-line {
+    width: 40px; height: 1px;
+    background: var(--blue2); margin: 1.5rem 0 2rem;
+  }
+  .sec-desc {
+    color: var(--text-dim); font-weight: 300;
+    line-height: 2; max-width: 600px; font-size: 0.9rem;
+  }
+
+  /* ===== CONCEPT (Ado風：大胆な文字配置) ===== */
+  #concept {
+    background: var(--bg);
+    min-height: 80vh; display: flex; align-items: center;
+  }
+  .concept-layout {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 4rem; align-items: center;
+  }
+  .concept-art {
+    position: relative; height: 400px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .concept-art .bg-char {
+    position: absolute;
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300; opacity: 0.04;
+    color: var(--blue3); line-height: 1;
+    user-select: none;
+  }
+  .concept-art .bg-char:nth-child(1) { font-size: 18rem; top: -20%; left: -10%; }
+  .concept-art .bg-char:nth-child(2) { font-size: 12rem; bottom: -10%; right: -5%; transform: rotate(-10deg); }
+  .concept-art .center-mark {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3rem; font-weight: 300;
+    color: var(--blue3); letter-spacing: 12px;
+    border: 1px solid var(--border);
+    padding: 2rem 3rem;
+    position: relative; z-index: 1;
+  }
+  .concept-text p {
+    color: var(--text); line-height: 2.2;
+    font-weight: 300; margin-bottom: 1.5rem; font-size: 0.95rem;
+  }
+  .concept-text .highlight {
+    color: var(--blue3); font-weight: 400;
+  }
+
+  /* ===== MEMBERS (Ado風：ミステリアスなプロフィール) ===== */
+  #members { background: var(--bg2); }
+  .members-wrap {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 0; border: 1px solid var(--border);
+  }
+  .m-card {
+    padding: 4rem 2.5rem; text-align: center;
+    position: relative; overflow: hidden;
+    border-right: 1px solid var(--border);
+    transition: all 0.6s;
+  }
+  .m-card:last-child { border-right: none; }
+  .m-card::before {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+    height: 0; background: linear-gradient(180deg, transparent, rgba(45,90,142,0.06));
+    transition: height 0.6s;
+  }
+  .m-card:hover::before { height: 100%; }
+  .m-card:hover { transform: translateY(-4px); }
+  .m-glyph {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 6rem; font-weight: 300;
+    color: var(--blue2); opacity: 0.3;
+    line-height: 1; margin-bottom: 1rem;
+    transition: opacity 0.4s;
+  }
+  .m-card:hover .m-glyph { opacity: 0.7; }
+  .m-tag {
+    font-family: monospace; font-size: 0.6rem;
+    color: var(--text-dim); letter-spacing: 4px;
+    opacity: 0.5; margin-bottom: 2rem;
+  }
+  .m-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem; font-weight: 300;
+    color: var(--white); letter-spacing: 4px;
+    margin-bottom: 0.3rem;
+  }
+  .m-name-sub {
+    font-size: 0.7rem; color: var(--text-dim);
+    letter-spacing: 3px; margin-bottom: 1.5rem;
+  }
+  .m-role {
+    font-size: 0.65rem; letter-spacing: 5px;
+    color: var(--blue3); text-transform: uppercase;
+    margin-bottom: 2rem;
+  }
+  .m-words {
+    font-size: 0.85rem; color: var(--text-dim);
+    line-height: 2; font-weight: 300;
+    font-style: italic;
+  }
+
+  /* ===== MUSIC (米津風：クリーンなリスト) ===== */
+  #music { background: var(--bg); }
+  .music-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+  .track {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: all 0.4s;
+  }
+  .track:hover {
+    border-color: rgba(74,142,201,0.2);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    transform: translateY(-2px);
+  }
+  .track-head {
+    display: flex; align-items: center; gap: 1.2rem;
+    padding: 1rem 1.5rem;
+  }
+  .track-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem; color: var(--blue2); opacity: 0.4;
+    min-width: 35px;
+  }
+  .track-title {
+    font-size: 0.9rem; font-weight: 400;
+    color: var(--white); letter-spacing: 1px;
+  }
+  .track-meta { font-size: 0.7rem; color: var(--text-dim); margin-top: 2px; }
+  .track-video {
+    position: relative; width: 100%;
+    padding-bottom: 56.25%; background: #000;
+  }
+  .track-video iframe {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%; border: none;
+  }
+
+  /* ===== GALLERY (Ado風：大胆ビジュアル) ===== */
+  #gallery { background: var(--bg2); }
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3px;
+  }
+  .g-item {
+    position: relative; overflow: hidden;
+    aspect-ratio: 16/9; cursor: pointer;
+  }
+  .g-item img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1), filter 0.6s;
+    filter: grayscale(30%) contrast(1.1);
+  }
+  .g-item:hover img {
+    transform: scale(1.08);
+    filter: grayscale(0%) contrast(1);
+  }
+  .g-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 40%, rgba(5,5,8,0.9) 100%);
+    display: flex; align-items: flex-end;
+    padding: 2rem;
+    transition: all 0.4s;
+  }
+  .g-overlay .g-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem; font-weight: 300;
+    color: var(--white); letter-spacing: 2px;
+    transform: translateY(10px); opacity: 0.8;
+    transition: all 0.4s;
+  }
+  .g-item:hover .g-overlay .g-title {
+    transform: translateY(0); opacity: 1;
+  }
+
+  /* ===== SHOP ===== */
+  #shop { background: var(--bg); }
+  .shop-box {
+    text-align: center; padding: 5rem 2rem;
+    border: 1px solid var(--border);
+    position: relative;
+  }
+  .shop-box h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem; font-weight: 300;
+    color: var(--blue3); letter-spacing: 8px;
+    margin-bottom: 1.5rem;
+  }
+  .shop-box p { color: var(--text-dim); font-weight: 300; line-height: 1.8; }
+
+  /* ===== LINKS ===== */
+  #links { background: var(--bg2); }
+  .links-row {
+    display: flex; justify-content: center; gap: 2rem;
+    flex-wrap: wrap;
+  }
+  .l-btn {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    padding: 1rem 2.5rem;
+    border: 1px solid var(--border);
+    color: var(--text); text-decoration: none;
+    font-size: 0.8rem; letter-spacing: 3px;
+    transition: all 0.4s;
+  }
+  .l-btn:hover {
+    border-color: var(--blue2);
+    color: var(--blue3);
+    background: rgba(45,90,142,0.05);
+    transform: translateY(-2px);
+  }
+
+  /* ===== FOOTER ===== */
+  footer {
+    text-align: center; padding: 4rem 2rem 3rem;
+    border-top: 1px solid var(--border);
+  }
+  footer p { font-size: 0.7rem; color: var(--text-dim); letter-spacing: 3px; }
+  footer .f-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem; color: var(--blue2);
+    letter-spacing: 8px; margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+
+  /* ===== SCROLL ANIMATIONS ===== */
+  .reveal {
+    opacity: 0; transform: translateY(40px);
+    transition: opacity 1s ease, transform 1s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    nav { padding: 0 1.5rem; }
+    .nav-links { display: none; }
+    section { padding: 80px 1.5rem; }
+    .concept-layout { grid-template-columns: 1fr; }
+    .concept-art { height: 250px; }
+    .members-wrap { grid-template-columns: 1fr; }
+    .m-card { border-right: none; border-bottom: 1px solid var(--border); }
+    .music-grid { grid-template-columns: 1fr; }
+    .gallery-grid { grid-template-columns: 1fr; }
+  }
+</style>
 </head>
 <body>
 
 <nav>
-  <div>Fabas</div>
-  <ul>
+  <div class="nav-logo">Fabas</div>
+  <ul class="nav-links">
     <li><a href="#concept">Concept</a></li>
     <li><a href="#members">Members</a></li>
     <li><a href="#music">Music</a></li>
@@ -21,9 +378,9 @@
 </nav>
 
 <!-- HERO -->
-<section>
-  <div>
-    <div id="heroLogo" style="max-width:700px; margin:0 auto; cursor:pointer;">
+<section class="hero">
+  <div class="hero-content">
+    <div style="max-width:700px; margin:0 auto;">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
   <defs>
     
@@ -244,27 +601,27 @@
 
 </svg>
     </div>
-    <div style="margin-top:2rem;"></div>
+    <div class="hero-line" style="margin-top:2rem;"></div>
   </div>
 </section>
 
 <!-- CONCEPT -->
 <section id="concept">
-  <div>
-    <div>
-      <div>
-        <span>F</span>
-        <span>嘘</span>
-        <div>Fabas</div>
+  <div class="inner">
+    <div class="concept-layout">
+      <div class="concept-art">
+        <span class="bg-char">F</span>
+        <span class="bg-char">嘘</span>
+        <div class="center-mark">Fabas</div>
       </div>
-      <div>
-        <p>Concept</p>
-        <h2>真実と嘘のあいだで</h2>
-        <div></div>
+      <div class="concept-text reveal">
+        <p class="sec-label">Concept</p>
+        <h2 class="sec-title">真実と嘘のあいだで</h2>
+        <div class="sec-line"></div>
         <p>
           Fabas（ファバス）。<br>
-          その名は <span>Fabrication（創作・虚構）</span>と
-          <span>嘘（as）</span>を組み合わせた造語。
+          その名は <span class="highlight">Fabrication（創作・虚構）</span>と
+          <span class="highlight">嘘（as）</span>を組み合わせた造語。
         </p>
         <p>
           現実と虚構、真実と嘘。<br>
@@ -278,40 +635,40 @@
 
 <!-- MEMBERS -->
 <section id="members">
-  <div>
-    <p style="text-align:center;">Members</p>
-    <h2 style="text-align:center;">存在証明</h2>
-    <div style="margin:1.5rem auto 3rem;"></div>
-    <div>
-      <div>
-        <div>&#x211A;</div>
-        <p>voice_01</p>
-        <h3>&#x211A;</h3>
-        <p>クイン</p>
-        <p>Main Vocal</p>
-        <p>
+  <div class="inner">
+    <p class="sec-label" style="text-align:center;">Members</p>
+    <h2 class="sec-title" style="text-align:center;">存在証明</h2>
+    <div class="sec-line" style="margin:1.5rem auto 3rem;"></div>
+    <div class="members-wrap">
+      <div class="m-card">
+        <div class="m-glyph">&#x211A;</div>
+        <p class="m-tag">voice_01</p>
+        <h3 class="m-name">&#x211A;</h3>
+        <p class="m-name-sub">クイン</p>
+        <p class="m-role">Main Vocal</p>
+        <p class="m-words">
           叫びが歌になる瞬間がある。<br>
           その境界線を、私は生きている。
         </p>
       </div>
-      <div>
-        <div>K</div>
-        <p>voice_02</p>
-        <h3>kiku</h3>
-        <p>キク</p>
-        <p>Sub Vocal</p>
-        <p>
+      <div class="m-card">
+        <div class="m-glyph">K</div>
+        <p class="m-tag">voice_02</p>
+        <h3 class="m-name">kiku</h3>
+        <p class="m-name-sub">キク</p>
+        <p class="m-role">Sub Vocal</p>
+        <p class="m-words">
           沈黙の中にも音楽はある。<br>
           その隙間を、声で満たしたい。
         </p>
       </div>
-      <div>
-        <div>U</div>
-        <p>architect</p>
-        <h3>うっちー</h3>
-        <p>ウッチー</p>
-        <p>Lyrics &amp; Composition</p>
-        <p>
+      <div class="m-card">
+        <div class="m-glyph">U</div>
+        <p class="m-tag">architect</p>
+        <h3 class="m-name">うっちー</h3>
+        <p class="m-name-sub">ウッチー</p>
+        <p class="m-role">Lyrics &amp; Composition</p>
+        <p class="m-words">
           嘘から始まる真実がある。<br>
           言葉とメロディで、その扉を開く。
         </p>
@@ -322,111 +679,111 @@
 
 <!-- MUSIC -->
 <section id="music">
-  <div>
-    <p>Music</p>
-    <h2>楽曲</h2>
-    <div></div>
-    <p style="margin-bottom:3rem;">全20曲。Fabasの世界を、ここで。</p>
-    <div>
+  <div class="inner">
+    <p class="sec-label">Music</p>
+    <h2 class="sec-title">楽曲</h2>
+    <div class="sec-line"></div>
+    <p class="sec-desc" style="margin-bottom:3rem;">全20曲。Fabasの世界を、ここで。</p>
+    <div class="music-grid">
 
-      <div>
-        <div><span>01</span><div><p>スーパームーンの夜に</p><p>Fabas</p></div></div>
-        <div><iframe src="https://www.youtube.com/embed/a6oC7kRn-Q4?start=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+      <div class="track reveal">
+        <div class="track-head"><span class="track-num">01</span><div><p class="track-title">星屑の巡礼</p><p class="track-meta">Fabas</p></div></div>
+        <div class="track-video"><iframe src="https://www.youtube.com/embed/S_6a9NdXjUQ" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
       </div>
 
-      <div>
-        <div><span>02</span><div><p>星屑の巡礼</p><p>Fabas</p></div></div>
-        <div><iframe src="https://www.youtube.com/embed/S_6a9NdXjUQ" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+      <div class="track reveal">
+        <div class="track-head"><span class="track-num">02</span><div><p class="track-title">鉄の花束</p><p class="track-meta">Fabas</p></div></div>
+        <div class="track-video"><iframe src="https://www.youtube.com/embed/aZFA-zR9YMg" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
       </div>
 
-      <div>
-        <div><span>03</span><div><p>鉄の花束</p><p>Fabas</p></div></div>
-        <div><iframe src="https://www.youtube.com/embed/aZFA-zR9YMg" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+      <div class="track reveal">
+        <div class="track-head"><span class="track-num">03</span><div><p class="track-title">仮面マスカレイド</p><p class="track-meta">Fabas</p></div></div>
+        <div class="track-video"><iframe src="https://www.youtube.com/embed/eAW9G7a_MIo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
       </div>
 
-      <div>
-        <div><span>04</span><div><p>仮面マスカレイド</p><p>Fabas</p></div></div>
-        <div><iframe src="https://www.youtube.com/embed/eAW9G7a_MIo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+      <div class="track reveal">
+        <div class="track-head"><span class="track-num">04</span><div><p class="track-title">Step by step</p><p class="track-meta">Fabas</p></div></div>
+        <div class="track-video"><iframe src="https://www.youtube.com/embed/A3b2G1g6vgM" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
       </div>
 
-      <div>
-        <div><span>05</span><div><p>Step by step</p><p>Fabas</p></div></div>
-        <div><iframe src="https://www.youtube.com/embed/A3b2G1g6vgM" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+      <div class="track reveal">
+        <div class="track-head"><span class="track-num">05</span><div><p class="track-title">ウォッカの波、ラムの風</p><p class="track-meta">Fabas</p></div></div>
+        <div class="track-video"><iframe src="https://www.youtube.com/embed/ajdOyUPQilc?start=2" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
       </div>
 
-      <div>
-        <div><span>06</span><div><p>ウォッカの波、ラムの風</p><p>Fabas</p></div></div>
-        <div><iframe src="https://www.youtube.com/embed/ajdOyUPQilc?start=2" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+      <div class="track reveal">
+        <div class="track-head"><span class="track-num">06</span><div><p class="track-title">夜の手</p><p class="track-meta">Fabas</p></div></div>
+        <div class="track-video"><iframe src="https://www.youtube.com/embed/UR-MPm6u14s" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
       </div>
 
-      <div>
-        <div><span>07</span><div><p>夜の手</p><p>Fabas</p></div></div>
-        <div><iframe src="https://www.youtube.com/embed/UR-MPm6u14s" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+      <div class="track reveal">
+        <div class="track-head"><span class="track-num">07</span><div><p class="track-title">バカで何が悪い？</p><p class="track-meta">Fabas</p></div></div>
+        <div class="track-video"><iframe src="https://www.youtube.com/embed/grgDvFqNUtg" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
       </div>
 
-      <div>
-        <div><span>08</span><div><p>バカで何が悪い？</p><p>Fabas</p></div></div>
-        <div><iframe src="https://www.youtube.com/embed/grgDvFqNUtg" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+      <div class="track reveal">
+        <div class="track-head"><span class="track-num">08</span><div><p class="track-title">ボタニカルな風の歌</p><p class="track-meta">Fabas</p></div></div>
+        <div class="track-video"><iframe src="https://www.youtube.com/embed/kwMT2vcZNxo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
       </div>
 
-      <div>
-        <div><span>09</span><div><p>ボタニカルな風の歌</p><p>Fabas</p></div></div>
-        <div><iframe src="https://www.youtube.com/embed/kwMT2vcZNxo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+      <div class="track reveal">
+        <div class="track-head"><span class="track-num">09</span><div><p class="track-title">卒業の朝に</p><p class="track-meta">Fabas</p></div></div>
+        <div class="track-video"><iframe src="https://www.youtube.com/embed/ioI25tY1Phs" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
       </div>
 
-      <div>
-        <div><span>10</span><div><p>卒業の朝に</p><p>Fabas</p></div></div>
-        <div><iframe src="https://www.youtube.com/embed/ioI25tY1Phs" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+      <div class="track reveal">
+        <div class="track-head"><span class="track-num">10</span><div><p class="track-title">希望の羽根</p><p class="track-meta">Fabas</p></div></div>
+        <div class="track-video"><iframe src="https://www.youtube.com/embed/SRCVyk7L7RY" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
       </div>
 
-      <div>
-        <div><span>11</span><div><p>希望の羽根</p><p>Fabas</p></div></div>
-        <div><iframe src="https://www.youtube.com/embed/SRCVyk7L7RY" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+      <div class="track reveal">
+        <div class="track-head"><span class="track-num">11</span><div><p class="track-title">ひとりごと</p><p class="track-meta">Fabas</p></div></div>
+        <div class="track-video"><iframe src="https://www.youtube.com/embed/h2yR2nbs8ZQ" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
       </div>
 
-      <div>
-        <div><span>12</span><div><p>ひとりごと</p><p>Fabas</p></div></div>
-        <div><iframe src="https://www.youtube.com/embed/h2yR2nbs8ZQ" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+      <div class="track reveal">
+        <div class="track-head"><span class="track-num">12</span><div><p class="track-title">永遠の花 Eternal Flower</p><p class="track-meta">Fabas</p></div></div>
+        <div class="track-video"><iframe src="https://www.youtube.com/embed/3cNIwaSC7jU?start=65" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
       </div>
 
-      <div>
-        <div><span>13</span><div><p>永遠の花 Eternal Flower</p><p>Fabas</p></div></div>
-        <div><iframe src="https://www.youtube.com/embed/3cNIwaSC7jU?start=65" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+      <div class="track reveal">
+        <div class="track-head"><span class="track-num">13</span><div><p class="track-title">Snow drop</p><p class="track-meta">Fabas</p></div></div>
+        <div class="track-video"><iframe src="https://www.youtube.com/embed/qSJjnkicG_Y" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
       </div>
 
-      <div>
-        <div><span>14</span><div><p>Snow drop</p><p>Fabas</p></div></div>
-        <div><iframe src="https://www.youtube.com/embed/qSJjnkicG_Y" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+      <div class="track reveal">
+        <div class="track-head"><span class="track-num">14</span><div><p class="track-title">スーパームーンの夜に</p><p class="track-meta">Fabas</p></div></div>
+        <div class="track-video"><iframe src="https://www.youtube.com/embed/a6oC7kRn-Q4?start=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
       </div>
 
-      <div>
-        <div><span>15</span><div><p>グッバイ宣言〜忖度なんかいらない〜</p><p>Fabas</p></div></div>
-        <div><iframe src="https://www.youtube.com/embed/PgrEpUynzHI" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+      <div class="track reveal">
+        <div class="track-head"><span class="track-num">15</span><div><p class="track-title">グッバイ宣言〜忖度なんかいらない〜</p><p class="track-meta">Fabas</p></div></div>
+        <div class="track-video"><iframe src="https://www.youtube.com/embed/PgrEpUynzHI" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
       </div>
 
-      <div>
-        <div><span>16</span><div><p>だんだだん</p><p>Fabas</p></div></div>
-        <div><iframe src="https://www.youtube.com/embed/uXLG2jsKa40" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+      <div class="track reveal">
+        <div class="track-head"><span class="track-num">16</span><div><p class="track-title">だんだだん</p><p class="track-meta">Fabas</p></div></div>
+        <div class="track-video"><iframe src="https://www.youtube.com/embed/uXLG2jsKa40" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
       </div>
 
-      <div>
-        <div><span>17</span><div><p>蛙の都市</p><p>Fabas</p></div></div>
-        <div><iframe src="https://www.youtube.com/embed/S4h-W0z1jMo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+      <div class="track reveal">
+        <div class="track-head"><span class="track-num">17</span><div><p class="track-title">蛙の都市</p><p class="track-meta">Fabas</p></div></div>
+        <div class="track-video"><iframe src="https://www.youtube.com/embed/S4h-W0z1jMo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
       </div>
 
-      <div>
-        <div><span>18</span><div><p>人生の軌跡 〜果てしなき旅路〜</p><p>Fabas</p></div></div>
-        <div><iframe src="https://www.youtube.com/embed/qD0-JzWZK1A" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+      <div class="track reveal">
+        <div class="track-head"><span class="track-num">18</span><div><p class="track-title">人生の軌跡 〜果てしなき旅路〜</p><p class="track-meta">Fabas</p></div></div>
+        <div class="track-video"><iframe src="https://www.youtube.com/embed/qD0-JzWZK1A" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
       </div>
 
-      <div>
-        <div><span>19</span><div><p>チーム友達</p><p>Fabas</p></div></div>
-        <div><iframe src="https://www.youtube.com/embed/uugs7ZIID7Y" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+      <div class="track reveal">
+        <div class="track-head"><span class="track-num">19</span><div><p class="track-title">チーム友達</p><p class="track-meta">Fabas</p></div></div>
+        <div class="track-video"><iframe src="https://www.youtube.com/embed/uugs7ZIID7Y" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
       </div>
 
-      <div>
-        <div><span>20</span><div><p>ジムのうた</p><p>Fabas</p></div></div>
-        <div><iframe src="https://www.youtube.com/embed/f2NpP6DPPYo?start=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+      <div class="track reveal">
+        <div class="track-head"><span class="track-num">20</span><div><p class="track-title">ジムのうた</p><p class="track-meta">Fabas</p></div></div>
+        <div class="track-video"><iframe src="https://www.youtube.com/embed/f2NpP6DPPYo?start=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
       </div>
 
     </div>
@@ -435,25 +792,25 @@
 
 <!-- GALLERY -->
 <section id="gallery">
-  <div>
-    <p style="text-align:center;">Gallery</p>
-    <h2 style="text-align:center; margin-bottom:3rem;">ビジュアル</h2>
-    <div>
-      <div>
+  <div class="inner">
+    <p class="sec-label" style="text-align:center;">Gallery</p>
+    <h2 class="sec-title" style="text-align:center; margin-bottom:3rem;">ビジュアル</h2>
+    <div class="gallery-grid">
+      <div class="g-item">
         <img src="https://img.youtube.com/vi/S_6a9NdXjUQ/maxresdefault.jpg" alt="星屑の巡礼">
-        <div><span>星屑の巡礼</span></div>
+        <div class="g-overlay"><span class="g-title">星屑の巡礼</span></div>
       </div>
-      <div>
+      <div class="g-item">
         <img src="https://img.youtube.com/vi/aZFA-zR9YMg/maxresdefault.jpg" alt="鉄の花束">
-        <div><span>鉄の花束</span></div>
+        <div class="g-overlay"><span class="g-title">鉄の花束</span></div>
       </div>
-      <div>
+      <div class="g-item">
         <img src="https://img.youtube.com/vi/eAW9G7a_MIo/maxresdefault.jpg" alt="仮面マスカレイド">
-        <div><span>仮面マスカレイド</span></div>
+        <div class="g-overlay"><span class="g-title">仮面マスカレイド</span></div>
       </div>
-      <div>
+      <div class="g-item">
         <img src="https://img.youtube.com/vi/PgrEpUynzHI/maxresdefault.jpg" alt="グッバイ宣言">
-        <div><span>グッバイ宣言〜忖度なんかいらない〜</span></div>
+        <div class="g-overlay"><span class="g-title">グッバイ宣言〜忖度なんかいらない〜</span></div>
       </div>
     </div>
   </div>
@@ -461,8 +818,8 @@
 
 <!-- SHOP -->
 <section id="shop">
-  <div>
-    <div>
+  <div class="inner">
+    <div class="shop-box reveal">
       <h3>Coming Soon</h3>
       <p>Fabasオリジナルグッズの販売準備中です。</p>
     </div>
@@ -471,19 +828,19 @@
 
 <!-- LINKS -->
 <section id="links">
-  <div style="text-align:center;">
-    <p>Links</p>
-    <h2 style="margin-bottom:2rem;">リンク</h2>
-    <div>
-      <a href="https://www.youtube.com/channel/UCGkl3Cpu_a6yvizyqQLbKKA" target="_blank">YouTube</a>
-      <a href="https://x.com/uchida51468032" target="_blank">X</a>
-      <a href="https://note.com/ushiwaka_maru123" target="_blank">note</a>
+  <div class="inner" style="text-align:center;">
+    <p class="sec-label">Links</p>
+    <h2 class="sec-title" style="margin-bottom:2rem;">リンク</h2>
+    <div class="links-row">
+      <a href="https://www.youtube.com/channel/UCGkl3Cpu_a6yvizyqQLbKKA" target="_blank" class="l-btn">YouTube</a>
+      <a href="https://x.com/uchida51468032" target="_blank" class="l-btn">X</a>
+      <a href="https://note.com/ushiwaka_maru123" target="_blank" class="l-btn">note</a>
     </div>
   </div>
 </section>
 
 <footer>
-  <p>Fabas</p>
+  <p class="f-logo">Fabas</p>
   <p>&copy; 2026 Fabas. All Rights Reserved.</p>
   <p style="margin-top:0.5rem; opacity:0.4;">Where truth meets fiction.</p>
 </footer>
@@ -502,19 +859,5 @@
   });
 </script>
 
-<script>
-// Click hero logo to replay animation
-document.addEventListener('DOMContentLoaded', function() {
-  var heroLogo = document.getElementById('heroLogo');
-  if (heroLogo) {
-    heroLogo.addEventListener('click', function() {
-      var svgHTML = heroLogo.innerHTML;
-      heroLogo.innerHTML = '';
-      void heroLogo.offsetWidth;
-      heroLogo.innerHTML = svgHTML;
-    });
-  }
-});
-</script>
 </body>
 </html>
