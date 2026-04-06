@@ -446,20 +446,10 @@
     .gallery-grid { grid-template-columns: 1fr; }
   }
 
-      .stamp-badge--review {
-        background: #f59e0b;
-        color: #1a1a1a;
-      }
-      .stamp-btn-disabled {
-        display: inline-block;
-        background: #444;
-        color: #888;
-        padding: 14px 32px;
-        border-radius: 50px;
-        font-size: 1rem;
-        cursor: not-allowed;
-        text-decoration: none;
-        font-weight: 600;
+      .stamp-badge--onsale {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: #fff;
+        border-color: #16a34a;
       }
     </style>
 </head>
@@ -929,7 +919,7 @@
     <div class="stamp-intro reveal">
       <p class="sec-label">Stamp</p>
       <h2 class="sec-title">LINEスタンプ</h2>
-      <span class="stamp-badge stamp-badge--review">審査中</span>
+      <span class="stamp-badge stamp-badge--onsale">✓ 販売中</span>
       <p>
         Fabasオリジナルキャラクター「キエルちゃん」のLINEスタンプが登場！<br>
         日常のあれこれをかわいく表現する8種類のスタンプです。<br>
@@ -972,7 +962,7 @@
     </div>
     <div class="stamp-buy reveal">
       <div class="stamp-price">¥120（税込）／ 8スタンプセット</div>
-      <span class="stamp-btn stamp-btn-disabled">LINE STORE で購入する（審査通過後に公開予定）</span>
+      <a href="https://store.line.me/stickershop/product/43718595/ja" class="stamp-btn" target="_blank" rel="noopener noreferrer">LINE STORE で購入する</a>
     </div>
   </div>
 </section>
