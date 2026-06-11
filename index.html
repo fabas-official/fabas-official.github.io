@@ -73,7 +73,7 @@
 }
 </script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;300;400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;300;400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&family=Shippori+Mincho:wght@400;500;600;700&display=swap');
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -97,6 +97,32 @@
     background: var(--bg); color: var(--text);
     overflow-x: hidden; font-weight: 300;
   }
+
+  /* 全画面に極薄の粒子ノイズを重ねて「印刷物の質感」を出す（fixedなので全セクション共通） */
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+  }
+
+  /* テキスト選択色もブランドカラーで統一 */
+  ::selection { background: rgba(123,188,230,0.32); color: #ffffff; }
+
+  /* スクロールバー（WebKit系）をダークテーマに馴染ませる */
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: #0a0a12; }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--blue1), rgba(74,142,201,0.4));
+    border-radius: 5px; border: 2px solid #0a0a12;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--blue2); }
+
+  /* 和文見出し用の明朝体（Cormorantは欧文のみ対応のため、漢字かなは しっぽり明朝 が受ける） */
+  .serif-jp { font-family: 'Cormorant Garamond', 'Shippori Mincho', serif; }
 
   /* スクリーンリーダー専用 (視覚的に非表示・SEO/a11y用h1等で使用) */
   .visually-hidden {
@@ -134,8 +160,32 @@
     color: var(--text-dim); text-decoration: none;
     font-size: 0.8rem; letter-spacing: 2.5px; text-transform: uppercase;
     transition: color 0.4s; font-weight: 400;
+    position: relative; padding-bottom: 4px;
+  }
+  .nav-links a::after {
+    content: ''; position: absolute;
+    left: 50%; bottom: -2px;
+    width: 0; height: 1px;
+    background: var(--blue3);
+    transform: translateX(-50%);
+    transition: width 0.35s ease;
+    box-shadow: 0 0 8px rgba(123,188,230,0.7);
   }
   .nav-links a:hover { color: var(--blue3); }
+  .nav-links a:hover::after { width: 100%; }
+  /* スクロール位置に応じてJSが.activeを付与（現在地インジケーター） */
+  .nav-links a.active { color: var(--ice); }
+  .nav-links a.active::after { width: 100%; }
+
+  /* ページ読了率バー（nav下端の1pxライン・JSがwidthを更新） */
+  .scroll-progress {
+    position: absolute; left: 0; bottom: -1px;
+    height: 1px; width: 0%;
+    background: linear-gradient(90deg, var(--blue1), var(--blue3), var(--ice));
+    box-shadow: 0 0 10px rgba(123,188,230,0.55);
+    pointer-events: none;
+    transition: width 0.15s linear;
+  }
 
   /* Nav Burger Button (mobile only) */
   .nav-burger {
@@ -213,7 +263,7 @@
     text-decoration: none;
     font-family: 'Cormorant Garamond', serif;
     font-size: 0.95rem; letter-spacing: 2.5px;
-    border-radius: 4px;
+    border-radius: 999px; /* サイト全体のピル型ボタン言語に統一 */
     backdrop-filter: blur(8px);
     transition: all 0.4s ease;
     animation: fadeUp 1.5s ease-out 0.85s both;
@@ -251,8 +301,9 @@
     color: var(--blue3); margin-bottom: 1rem;
   }
   .sec-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 2.8rem; font-weight: 300; letter-spacing: 3px;
+    /* 欧文=Cormorant / 和文=しっぽり明朝 の混植でエディトリアル感を出す */
+    font-family: 'Cormorant Garamond', 'Shippori Mincho', serif;
+    font-size: 2.8rem; font-weight: 500; letter-spacing: 3px;
     color: #ffffff; margin-bottom: 0.5rem;
     text-shadow: 0 0 1px rgba(255,255,255,0.65), 0 0 18px rgba(184,223,240,0.28);
   }
@@ -297,6 +348,18 @@
     padding: 2.2rem 3.4rem;
     position: relative; z-index: 1;
     text-shadow: 0 0 24px rgba(184,223,240,0.4), 0 0 6px rgba(255,255,255,0.25);
+  }
+  /* ブランドの核フレーズを縦書き明朝で（和エディトリアルの署名的アクセント） */
+  .concept-art .vert-copy {
+    position: absolute; right: 4%; top: 50%;
+    transform: translateY(-50%);
+    writing-mode: vertical-rl;
+    font-family: 'Shippori Mincho', serif;
+    font-size: 0.95rem; letter-spacing: 0.45em;
+    color: var(--ice); opacity: 0.72;
+    text-shadow: 0 0 14px rgba(184,223,240,0.35);
+    z-index: 2; user-select: none;
+    pointer-events: none;
   }
   .concept-text p {
     color: var(--text); line-height: 2.2;
@@ -358,9 +421,10 @@
     margin-bottom: 2rem;
   }
   .m-words {
-    font-size: 0.85rem; color: var(--text);
-    line-height: 2; font-weight: 300;
-    font-style: italic;
+    /* 和文の詩的な一節は明朝体で（italicは和文で効かないため廃止） */
+    font-family: 'Shippori Mincho', serif;
+    font-size: 0.88rem; color: var(--text);
+    line-height: 2.2; font-weight: 400;
   }
 
   /* ===== MUSIC (米津風：クリーンなリスト) ===== */
@@ -396,26 +460,69 @@
     color: #fff; letter-spacing: 1px;
   }
   .track-meta { font-size: 0.7rem; color: var(--text); margin-top: 2px; }
+  /* 動画はクリックまでiframeを読み込まない「ファサード方式」
+     （20本同時embed→サムネ20枚に変更で初期表示を大幅軽量化 + 見た目も統一） */
   .track-video {
-    position: relative; width: 100%;
-    padding-bottom: 56.25%; background: #000;
+    position: relative; width: 100%; display: block;
+    padding: 0; padding-bottom: 56.25%; background: #000;
+    border: none; cursor: pointer; overflow: hidden;
+  }
+  .track-video img {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%; object-fit: cover;
+    filter: brightness(0.82) saturate(0.92);
+    transition: transform 0.7s cubic-bezier(0.23, 1, 0.32, 1), filter 0.5s;
+  }
+  .track-video:hover img,
+  .track-video:focus-visible img {
+    transform: scale(1.05);
+    filter: brightness(1) saturate(1);
+  }
+  /* ガラス質の再生ボタン（中央） */
+  .play-badge {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 64px; height: 64px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    background: rgba(13,13,24,0.55);
+    border: 1px solid rgba(123,188,230,0.5);
+    backdrop-filter: blur(6px);
+    color: var(--ice); font-size: 1.1rem;
+    padding-left: 4px; /* ▶を光学的に中央へ */
+    transition: all 0.4s ease;
+    box-shadow: 0 0 0 0 rgba(123,188,230,0);
+    pointer-events: none;
+  }
+  .track-video:hover .play-badge,
+  .track-video:focus-visible .play-badge {
+    background: rgba(74,142,201,0.45);
+    border-color: var(--ice);
+    box-shadow: 0 0 36px 4px rgba(123,188,230,0.35);
+    transform: translate(-50%, -50%) scale(1.08);
   }
   .track-video iframe {
     position: absolute; top: 0; left: 0;
     width: 100%; height: 100%; border: none;
   }
 
-  /* ===== GALLERY (Ado風：大胆ビジュアル) ===== */
+  /* ===== GALLERY (エディトリアル非対称グリッド：1枚を主役に) ===== */
   #gallery { background: var(--bg2); }
   .gallery-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 3px;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 180px;
+    gap: 6px;
   }
   .g-item {
     position: relative; overflow: hidden;
-    aspect-ratio: 16/9; cursor: pointer;
+    cursor: pointer;
   }
+  /* 1枚目=主役（2列×2行の大判）、2枚目=横長、3・4枚目=正方形寄り */
+  .g-item:nth-child(1) { grid-column: span 2; grid-row: span 2; }
+  .g-item:nth-child(2) { grid-column: span 2; grid-row: span 1; }
+  .g-item:nth-child(3) { grid-column: span 1; grid-row: span 1; }
+  .g-item:nth-child(4) { grid-column: span 1; grid-row: span 1; }
   .g-item img {
     width: 100%; height: 100%; object-fit: cover;
     transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1), filter 0.6s;
@@ -834,6 +941,232 @@
     .sec-line { animation: none !important; transition: none !important; opacity: 1 !important; transform: none !important; filter: none !important; letter-spacing: revert !important; width: 40px !important; }
   }
 
+  /* ===== 統一ボタンシステム（サイト内のボタン言語を2種類に集約） ===== */
+  /* 主ボタン: グラデーションピル（最重要CTA用） */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem;
+    padding: 1rem 2.4rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--blue1), var(--blue2));
+    color: #ffffff; text-decoration: none;
+    font-size: 0.95rem; letter-spacing: 0.06em; font-weight: 400;
+    box-shadow: 0 4px 20px rgba(74,142,201,0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(74,142,201,0.5);
+    filter: brightness(1.1);
+  }
+  /* 副ボタン: ゴーストピル（並列の選択肢用） */
+  .btn-ghost {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem;
+    padding: 0.9rem 1.7rem;
+    border-radius: 999px;
+    border: 1px solid rgba(123,188,230,0.35);
+    background: rgba(123,188,230,0.06);
+    color: var(--ice); text-decoration: none;
+    font-size: 0.9rem; letter-spacing: 0.05em; font-weight: 300;
+    backdrop-filter: blur(6px);
+    transition: all 0.3s ease;
+  }
+  .btn-ghost:hover {
+    border-color: var(--ice);
+    background: rgba(74,142,201,0.2);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 22px rgba(123,188,230,0.22);
+  }
+
+  /* ===== STORE 商品カード（インラインスタイル群をクラスに統合） ===== */
+  #shop { background: var(--bg); padding: 120px 3rem; position: relative; overflow: hidden; }
+  #shop::before {
+    content: ''; position: absolute;
+    top: 10%; right: -100px; width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(123,188,230,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .store-intro { text-align: center; margin-bottom: 3rem; max-width: 720px; margin-left: auto; margin-right: auto; }
+  .store-lead { color: var(--blue3); font-size: 0.95rem; letter-spacing: 0.15em; margin-bottom: 1.4rem; }
+  .store-desc { color: var(--text); font-size: 0.95rem; line-height: 1.9; margin-bottom: 2rem; }
+  .music-products {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.2rem; max-width: 1100px; margin: 0 auto;
+    position: relative; z-index: 1;
+  }
+  .product-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.6rem;
+    display: flex; flex-direction: column; gap: 0.7rem;
+    position: relative;
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .product-card:hover {
+    border-color: var(--blue2);
+    transform: translateY(-4px);
+    box-shadow: 0 14px 36px rgba(0,0,0,0.35), 0 0 24px rgba(74,142,201,0.08);
+  }
+  /* 主力商品（No.1）はグラデ背景+青枠で格上げ */
+  .product-card.featured {
+    background: linear-gradient(135deg, rgba(45,90,142,0.18), rgba(74,142,201,0.08));
+    border-color: var(--blue2);
+  }
+  .product-card.featured:hover { border-color: var(--blue3); }
+  .product-badge {
+    position: absolute; top: -11px; right: 14px;
+    background: linear-gradient(135deg, var(--blue2), var(--blue3));
+    color: #06121f; font-size: 0.7rem; font-weight: 700;
+    padding: 0.28rem 0.8rem; border-radius: 20px;
+    letter-spacing: 0.08em;
+    box-shadow: 0 2px 12px rgba(123,188,230,0.4);
+  }
+  .product-head { display: flex; align-items: baseline; gap: 0.7rem; }
+  .product-num {
+    color: var(--blue3);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem; font-weight: 600;
+  }
+  .product-title { color: var(--white); font-size: 1.05rem; font-weight: 400; line-height: 1.45; margin: 0; }
+  .product-title small { color: var(--text-dim); font-size: 0.82rem; letter-spacing: 0.05em; font-weight: 300; display: block; margin-top: 2px; }
+  .product-meta { color: var(--text-dim); font-size: 0.78rem; letter-spacing: 0.1em; margin: 0; }
+  .card-btn {
+    margin-top: auto;
+    display: block; text-align: center;
+    background: var(--blue1); color: #fff;
+    padding: 0.75rem 1.2rem; border-radius: 10px;
+    text-decoration: none; font-size: 0.85rem; letter-spacing: 0.05em;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+  .card-btn:hover { background: var(--blue2); box-shadow: 0 4px 16px rgba(74,142,201,0.35); }
+  .card-btn-ghost {
+    display: block; text-align: center;
+    background: transparent; color: var(--blue3);
+    padding: 0.6rem 1.2rem;
+    border: 1px solid var(--blue1); border-radius: 10px;
+    text-decoration: none; font-size: 0.82rem; letter-spacing: 0.05em;
+    transition: all 0.3s ease;
+  }
+  .card-btn-ghost:hover { background: var(--blue1); color: #fff; }
+  .store-note { text-align: center; color: var(--text-dim); font-size: 0.82rem; line-height: 1.7; margin: 2.5rem auto 0; max-width: 640px; }
+  .store-note a { color: var(--blue3); }
+
+  /* ===== COUNSELING（ガラスカードに包んで「窓口」の安心感を出す） ===== */
+  #counseling { background: var(--bg2); padding: 120px 3rem; position: relative; overflow: hidden; }
+  #counseling::before {
+    content: ''; position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(74,142,201,0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .counseling-card {
+    position: relative; z-index: 1;
+    max-width: 860px; margin: 0 auto;
+    background: rgba(28,28,40,0.5);
+    border: 1px solid rgba(123,188,230,0.18);
+    border-radius: 22px;
+    padding: 3.5rem 3rem;
+    backdrop-filter: blur(14px);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+    text-align: center;
+  }
+  .counseling-sub { color: var(--blue3); font-size: 0.95rem; letter-spacing: 0.15em; margin-bottom: 1.2rem; }
+  .counseling-lead { color: var(--text); font-size: 0.97rem; line-height: 2; margin: 0 auto 2.2rem; max-width: 600px; }
+  .counseling-lead strong { color: var(--ice); font-weight: 500; }
+  .reply-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    border: 1px solid rgba(123,188,230,0.4);
+    background: rgba(123,188,230,0.08);
+    color: var(--ice);
+    font-size: 0.78rem; letter-spacing: 0.12em;
+    padding: 0.4rem 1.1rem; border-radius: 20px;
+    margin-bottom: 1.6rem;
+  }
+  /* 4つの相談メニュー: 2×2のサービスタイル */
+  .service-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 0.9rem;
+    max-width: 560px; margin: 0 auto 2.4rem;
+  }
+  .service-tile {
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(13,13,24,0.55);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.05rem 1.3rem;
+    color: var(--text); text-decoration: none;
+    font-size: 0.92rem;
+    transition: all 0.3s ease;
+  }
+  .service-tile .price {
+    color: var(--blue3); font-size: 0.85rem;
+    font-family: 'Cormorant Garamond', serif; letter-spacing: 0.05em;
+    transition: transform 0.3s ease;
+  }
+  .service-tile:hover {
+    border-color: var(--blue2);
+    background: rgba(45,90,142,0.22);
+    color: #ffffff;
+    transform: translateY(-2px);
+  }
+  .service-tile:hover .price { transform: translateX(2px); color: var(--ice); }
+  .counseling-cred { color: var(--text-dim); font-size: 0.78rem; margin-top: 2.2rem; line-height: 1.8; }
+
+  /* ===== FOOTER（締めの一枚として再設計） ===== */
+  footer {
+    text-align: center; padding: 5rem 2rem 3rem;
+    border-top: 1px solid var(--border);
+    background:
+      radial-gradient(ellipse 600px 240px at 50% 0%, rgba(45,90,142,0.12) 0%, transparent 70%),
+      var(--bg);
+  }
+  footer .f-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem; color: var(--ice);
+    letter-spacing: 12px; margin-bottom: 0.6rem;
+    text-shadow: 0 0 28px rgba(123,188,230,0.35);
+  }
+  footer .f-tag {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.85rem; color: var(--text-dim);
+    letter-spacing: 4px; font-style: italic;
+    margin-bottom: 2.2rem;
+  }
+  .f-nav {
+    display: flex; justify-content: center; flex-wrap: wrap;
+    gap: 1.6rem; list-style: none;
+    margin-bottom: 2.4rem;
+  }
+  .f-nav a {
+    color: var(--text-dim); text-decoration: none;
+    font-size: 0.72rem; letter-spacing: 2.5px; text-transform: uppercase;
+    transition: color 0.3s;
+  }
+  .f-nav a:hover { color: var(--blue3); }
+  footer .f-copy {
+    font-size: 0.75rem; color: var(--text-dim);
+    letter-spacing: 2px; font-weight: 300;
+  }
+  .to-top {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px;
+    border: 1px solid rgba(123,188,230,0.3);
+    border-radius: 50%;
+    color: var(--blue3); text-decoration: none;
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+  }
+  .to-top:hover {
+    border-color: var(--ice); color: #ffffff;
+    background: rgba(74,142,201,0.18);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(123,188,230,0.25);
+  }
+
   /* ===== RESPONSIVE ===== */
   @media (max-width: 768px) {
     nav { padding: 0 1.5rem; }
@@ -862,13 +1195,32 @@
     .hero-sub { letter-spacing: 4px; font-size: 0.72rem; }
     .hero-cta { font-size: 0.85rem; padding: 0.75rem 1.4rem; }
     section { padding: 80px 1.5rem; }
+    #shop, #counseling { padding: 80px 1.5rem; }
+    .sec-title { font-size: 2.1rem; }
     .concept-layout { grid-template-columns: 1fr; }
     .concept-art { height: 250px; }
+    .concept-art .vert-copy { font-size: 0.78rem; right: 1%; letter-spacing: 0.3em; }
     .members-wrap { grid-template-columns: 1fr; }
     .m-card { border-right: none; border-bottom: 1px solid var(--border); }
     .music-grid { grid-template-columns: 1fr; }
-    .gallery-grid { grid-template-columns: 1fr; }
+    /* ギャラリー: モバイルは主役1枚+横長3枚の縦積み */
+    .gallery-grid { grid-template-columns: 1fr; grid-auto-rows: 220px; }
+    .g-item:nth-child(1),
+    .g-item:nth-child(2),
+    .g-item:nth-child(3),
+    .g-item:nth-child(4) { grid-column: span 1; grid-row: span 1; }
     .stamp-products { grid-template-columns: 1fr; max-width: 350px; }
+    .counseling-card { padding: 2.4rem 1.4rem; border-radius: 16px; }
+    .service-grid { grid-template-columns: 1fr; }
+    .f-nav { gap: 1.1rem; }
+  }
+
+  /* タブレット帯: ギャラリーは2列に再構成 */
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .gallery-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 200px; }
+    .g-item:nth-child(1) { grid-column: span 2; grid-row: span 2; }
+    .g-item:nth-child(2) { grid-column: span 2; }
+    .g-item:nth-child(3), .g-item:nth-child(4) { grid-column: span 1; }
   }
     </style>
 </head>
@@ -889,6 +1241,7 @@
   <button class="nav-burger" id="nav-burger" aria-label="メニューを開く" aria-expanded="false" aria-controls="nav-list">
     <span></span><span></span><span></span>
   </button>
+  <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
 </nav>
 
 <!-- HERO -->
@@ -1129,6 +1482,7 @@
         <span class="bg-char">F</span>
         <span class="bg-char">嘘</span>
         <div class="center-mark">Fabas</div>
+        <span class="vert-copy" aria-hidden="true">嘘から出た、まこと。</span>
       </div>
       <div class="concept-text reveal">
         <p class="sec-label">Concept</p>
@@ -1204,102 +1558,102 @@
 
       <div class="track reveal">
         <div class="track-head"><span class="track-num">01</span><div><p class="track-title">スーパームーンの夜に</p><p class="track-meta">Fabas</p></div></div>
-        <div class="track-video"><iframe src="https://www.youtube.com/embed/a6oC7kRn-Q4?start=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+        <button class="track-video" data-vid="a6oC7kRn-Q4" data-start="1" aria-label="スーパームーンの夜に を再生"><img src="https://i.ytimg.com/vi/a6oC7kRn-Q4/hqdefault.jpg" alt="" loading="lazy"><span class="play-badge" aria-hidden="true">&#9654;</span></button>
       </div>
 
       <div class="track reveal">
         <div class="track-head"><span class="track-num">02</span><div><p class="track-title">鉄の花束</p><p class="track-meta">Fabas</p></div></div>
-        <div class="track-video"><iframe src="https://www.youtube.com/embed/aZFA-zR9YMg" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+        <button class="track-video" data-vid="aZFA-zR9YMg" data-start="0" aria-label="鉄の花束 を再生"><img src="https://i.ytimg.com/vi/aZFA-zR9YMg/hqdefault.jpg" alt="" loading="lazy"><span class="play-badge" aria-hidden="true">&#9654;</span></button>
       </div>
 
       <div class="track reveal">
         <div class="track-head"><span class="track-num">03</span><div><p class="track-title">星屑の巡礼</p><p class="track-meta">Fabas</p></div></div>
-        <div class="track-video"><iframe src="https://www.youtube.com/embed/S_6a9NdXjUQ" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+        <button class="track-video" data-vid="S_6a9NdXjUQ" data-start="0" aria-label="星屑の巡礼 を再生"><img src="https://i.ytimg.com/vi/S_6a9NdXjUQ/hqdefault.jpg" alt="" loading="lazy"><span class="play-badge" aria-hidden="true">&#9654;</span></button>
       </div>
 
       <div class="track reveal">
         <div class="track-head"><span class="track-num">04</span><div><p class="track-title">仮面マスカレイド</p><p class="track-meta">Fabas</p></div></div>
-        <div class="track-video"><iframe src="https://www.youtube.com/embed/eAW9G7a_MIo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+        <button class="track-video" data-vid="eAW9G7a_MIo" data-start="0" aria-label="仮面マスカレイド を再生"><img src="https://i.ytimg.com/vi/eAW9G7a_MIo/hqdefault.jpg" alt="" loading="lazy"><span class="play-badge" aria-hidden="true">&#9654;</span></button>
       </div>
 
       <div class="track reveal">
         <div class="track-head"><span class="track-num">05</span><div><p class="track-title">Step by step</p><p class="track-meta">Fabas</p></div></div>
-        <div class="track-video"><iframe src="https://www.youtube.com/embed/A3b2G1g6vgM" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+        <button class="track-video" data-vid="A3b2G1g6vgM" data-start="0" aria-label="Step by step を再生"><img src="https://i.ytimg.com/vi/A3b2G1g6vgM/hqdefault.jpg" alt="" loading="lazy"><span class="play-badge" aria-hidden="true">&#9654;</span></button>
       </div>
 
       <div class="track reveal">
         <div class="track-head"><span class="track-num">06</span><div><p class="track-title">ウォッカの波、ラムの風</p><p class="track-meta">Fabas</p></div></div>
-        <div class="track-video"><iframe src="https://www.youtube.com/embed/ajdOyUPQilc?start=2" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+        <button class="track-video" data-vid="ajdOyUPQilc" data-start="2" aria-label="ウォッカの波、ラムの風 を再生"><img src="https://i.ytimg.com/vi/ajdOyUPQilc/hqdefault.jpg" alt="" loading="lazy"><span class="play-badge" aria-hidden="true">&#9654;</span></button>
       </div>
 
       <div class="track reveal">
         <div class="track-head"><span class="track-num">07</span><div><p class="track-title">夜の手</p><p class="track-meta">Fabas</p></div></div>
-        <div class="track-video"><iframe src="https://www.youtube.com/embed/UR-MPm6u14s" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+        <button class="track-video" data-vid="UR-MPm6u14s" data-start="0" aria-label="夜の手 を再生"><img src="https://i.ytimg.com/vi/UR-MPm6u14s/hqdefault.jpg" alt="" loading="lazy"><span class="play-badge" aria-hidden="true">&#9654;</span></button>
       </div>
 
       <div class="track reveal">
         <div class="track-head"><span class="track-num">08</span><div><p class="track-title">バカで何が悪い？</p><p class="track-meta">Fabas</p></div></div>
-        <div class="track-video"><iframe src="https://www.youtube.com/embed/grgDvFqNUtg" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+        <button class="track-video" data-vid="grgDvFqNUtg" data-start="0" aria-label="バカで何が悪い？ を再生"><img src="https://i.ytimg.com/vi/grgDvFqNUtg/hqdefault.jpg" alt="" loading="lazy"><span class="play-badge" aria-hidden="true">&#9654;</span></button>
       </div>
 
       <div class="track reveal">
         <div class="track-head"><span class="track-num">09</span><div><p class="track-title">ボタニカルな風の歌</p><p class="track-meta">Fabas</p></div></div>
-        <div class="track-video"><iframe src="https://www.youtube.com/embed/kwMT2vcZNxo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+        <button class="track-video" data-vid="kwMT2vcZNxo" data-start="0" aria-label="ボタニカルな風の歌 を再生"><img src="https://i.ytimg.com/vi/kwMT2vcZNxo/hqdefault.jpg" alt="" loading="lazy"><span class="play-badge" aria-hidden="true">&#9654;</span></button>
       </div>
 
       <div class="track reveal">
         <div class="track-head"><span class="track-num">10</span><div><p class="track-title">卒業の朝に</p><p class="track-meta">Fabas</p></div></div>
-        <div class="track-video"><iframe src="https://www.youtube.com/embed/ioI25tY1Phs" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+        <button class="track-video" data-vid="ioI25tY1Phs" data-start="0" aria-label="卒業の朝に を再生"><img src="https://i.ytimg.com/vi/ioI25tY1Phs/hqdefault.jpg" alt="" loading="lazy"><span class="play-badge" aria-hidden="true">&#9654;</span></button>
       </div>
 
       <div class="track reveal">
         <div class="track-head"><span class="track-num">11</span><div><p class="track-title">希望の羽根</p><p class="track-meta">Fabas</p></div></div>
-        <div class="track-video"><iframe src="https://www.youtube.com/embed/SRCVyk7L7RY" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+        <button class="track-video" data-vid="SRCVyk7L7RY" data-start="0" aria-label="希望の羽根 を再生"><img src="https://i.ytimg.com/vi/SRCVyk7L7RY/hqdefault.jpg" alt="" loading="lazy"><span class="play-badge" aria-hidden="true">&#9654;</span></button>
       </div>
 
       <div class="track reveal">
         <div class="track-head"><span class="track-num">12</span><div><p class="track-title">ひとりごと</p><p class="track-meta">Fabas</p></div></div>
-        <div class="track-video"><iframe src="https://www.youtube.com/embed/h2yR2nbs8ZQ" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+        <button class="track-video" data-vid="h2yR2nbs8ZQ" data-start="0" aria-label="ひとりごと を再生"><img src="https://i.ytimg.com/vi/h2yR2nbs8ZQ/hqdefault.jpg" alt="" loading="lazy"><span class="play-badge" aria-hidden="true">&#9654;</span></button>
       </div>
 
       <div class="track reveal">
         <div class="track-head"><span class="track-num">13</span><div><p class="track-title">永遠の花 Eternal Flower</p><p class="track-meta">Fabas</p></div></div>
-        <div class="track-video"><iframe src="https://www.youtube.com/embed/3cNIwaSC7jU?start=65" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+        <button class="track-video" data-vid="3cNIwaSC7jU" data-start="65" aria-label="永遠の花 Eternal Flower を再生"><img src="https://i.ytimg.com/vi/3cNIwaSC7jU/hqdefault.jpg" alt="" loading="lazy"><span class="play-badge" aria-hidden="true">&#9654;</span></button>
       </div>
 
       <div class="track reveal">
         <div class="track-head"><span class="track-num">14</span><div><p class="track-title">Snow drop</p><p class="track-meta">Fabas</p></div></div>
-        <div class="track-video"><iframe src="https://www.youtube.com/embed/qSJjnkicG_Y" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+        <button class="track-video" data-vid="qSJjnkicG_Y" data-start="0" aria-label="Snow drop を再生"><img src="https://i.ytimg.com/vi/qSJjnkicG_Y/hqdefault.jpg" alt="" loading="lazy"><span class="play-badge" aria-hidden="true">&#9654;</span></button>
       </div>
 
       <div class="track reveal">
         <div class="track-head"><span class="track-num">15</span><div><p class="track-title">グッバイ宣言〜忖度なんかいらない〜</p><p class="track-meta">Fabas</p></div></div>
-        <div class="track-video"><iframe src="https://www.youtube.com/embed/PgrEpUynzHI" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+        <button class="track-video" data-vid="PgrEpUynzHI" data-start="0" aria-label="グッバイ宣言〜忖度なんかいらない〜 を再生"><img src="https://i.ytimg.com/vi/PgrEpUynzHI/hqdefault.jpg" alt="" loading="lazy"><span class="play-badge" aria-hidden="true">&#9654;</span></button>
       </div>
 
       <div class="track reveal">
         <div class="track-head"><span class="track-num">16</span><div><p class="track-title">だんだだん</p><p class="track-meta">Fabas</p></div></div>
-        <div class="track-video"><iframe src="https://www.youtube.com/embed/uXLG2jsKa40" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+        <button class="track-video" data-vid="uXLG2jsKa40" data-start="0" aria-label="だんだだん を再生"><img src="https://i.ytimg.com/vi/uXLG2jsKa40/hqdefault.jpg" alt="" loading="lazy"><span class="play-badge" aria-hidden="true">&#9654;</span></button>
       </div>
 
       <div class="track reveal">
         <div class="track-head"><span class="track-num">17</span><div><p class="track-title">蛙の都市</p><p class="track-meta">Fabas</p></div></div>
-        <div class="track-video"><iframe src="https://www.youtube.com/embed/S4h-W0z1jMo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+        <button class="track-video" data-vid="S4h-W0z1jMo" data-start="0" aria-label="蛙の都市 を再生"><img src="https://i.ytimg.com/vi/S4h-W0z1jMo/hqdefault.jpg" alt="" loading="lazy"><span class="play-badge" aria-hidden="true">&#9654;</span></button>
       </div>
 
       <div class="track reveal">
         <div class="track-head"><span class="track-num">18</span><div><p class="track-title">人生の軌跡 〜果てしなき旅路〜</p><p class="track-meta">Fabas</p></div></div>
-        <div class="track-video"><iframe src="https://www.youtube.com/embed/qD0-JzWZK1A" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+        <button class="track-video" data-vid="qD0-JzWZK1A" data-start="0" aria-label="人生の軌跡 〜果てしなき旅路〜 を再生"><img src="https://i.ytimg.com/vi/qD0-JzWZK1A/hqdefault.jpg" alt="" loading="lazy"><span class="play-badge" aria-hidden="true">&#9654;</span></button>
       </div>
 
       <div class="track reveal">
         <div class="track-head"><span class="track-num">19</span><div><p class="track-title">チーム友達</p><p class="track-meta">Fabas</p></div></div>
-        <div class="track-video"><iframe src="https://www.youtube.com/embed/uugs7ZIID7Y" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+        <button class="track-video" data-vid="uugs7ZIID7Y" data-start="0" aria-label="チーム友達 を再生"><img src="https://i.ytimg.com/vi/uugs7ZIID7Y/hqdefault.jpg" alt="" loading="lazy"><span class="play-badge" aria-hidden="true">&#9654;</span></button>
       </div>
 
       <div class="track reveal">
         <div class="track-head"><span class="track-num">20</span><div><p class="track-title">ジムのうた</p><p class="track-meta">Fabas</p></div></div>
-        <div class="track-video"><iframe src="https://www.youtube.com/embed/f2NpP6DPPYo?start=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+        <button class="track-video" data-vid="f2NpP6DPPYo" data-start="1" aria-label="ジムのうた を再生"><img src="https://i.ytimg.com/vi/f2NpP6DPPYo/hqdefault.jpg" alt="" loading="lazy"><span class="play-badge" aria-hidden="true">&#9654;</span></button>
       </div>
 
     </div>
@@ -1333,117 +1687,100 @@
 </section>
 
 <!-- MUSIC STORE -->
-<section id="shop" style="padding: 5rem 1.5rem; position: relative; overflow: hidden;">
-  <div style="position: absolute; top: 10%; right: -100px; width: 500px; height: 500px; background: radial-gradient(circle, rgba(123,188,230,0.06) 0%, transparent 70%); pointer-events: none;"></div>
-  <div class="inner" style="position: relative; z-index: 1;">
-    <div class="store-intro reveal" style="text-align:center; margin-bottom: 3rem; max-width: 720px; margin-left: auto; margin-right: auto;">
+<section id="shop">
+  <div class="inner">
+    <div class="store-intro reveal">
       <p class="sec-label">Store</p>
-      <h2 class="sec-title" style="margin-bottom: 0.8rem;">Music Store</h2>
-      <p style="color: var(--blue3); font-size: 0.95rem; letter-spacing: 0.15em; margin-bottom: 1.4rem;">配信中の楽曲</p>
-      <p style="color: var(--text); font-size: 0.95rem; line-height: 1.9; margin-bottom: 2rem;">
+      <h2 class="sec-title">Music Store</h2>
+      <p class="store-lead">配信中の楽曲</p>
+      <p class="store-desc">
         Apple Music / Spotify / Amazon Music / YouTube Music ほか、主要音楽配信サービスで聴けます。<br>
         各楽曲のボタンから、お使いのサービスに自動でご案内します。
       </p>
-      <a href="https://open.spotify.com/artist/7f4bCKSGrYhIXxBUWSpnqB" target="_blank" rel="noopener" style="display:inline-block; background: linear-gradient(135deg, var(--blue1), var(--blue2)); color: #fff; padding: 0.95rem 2.2rem; border-radius: 30px; text-decoration: none; font-size: 0.95rem; letter-spacing: 0.05em; font-weight: 400; box-shadow: 0 4px 16px rgba(74,142,201,0.25); transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(74,142,201,0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 16px rgba(74,142,201,0.25)';">
-        ▶ うっちーP アーティストページ（Spotify）
+      <a href="https://open.spotify.com/artist/7f4bCKSGrYhIXxBUWSpnqB" target="_blank" rel="noopener" class="btn">
+        &#9654; うっちーP アーティストページ（Spotify）
       </a>
     </div>
 
-    <div class="music-products reveal" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem; max-width: 1100px; margin: 0 auto;">
+    <div class="music-products reveal">
 
       <!-- 01. ジムのうた - YouTube再生数No.1の主力楽曲 -->
-      <div class="music-product-card" style="background: linear-gradient(135deg, rgba(45,90,142,0.15), rgba(74,142,201,0.08)); border: 1px solid var(--blue2); border-radius: 12px; padding: 1.6rem; display: flex; flex-direction: column; gap: 0.7rem; transition: all 0.3s; position: relative;" onmouseover="this.style.borderColor='var(--blue3)'; this.style.transform='translateY(-3px)';" onmouseout="this.style.borderColor='var(--blue2)'; this.style.transform='translateY(0)';">
-        <span style="position: absolute; top: -10px; right: 14px; background: var(--blue2); color: #fff; font-size: 0.7rem; padding: 0.25rem 0.7rem; border-radius: 20px; letter-spacing: 0.08em; font-weight: 600;">⭐ YouTube 再生数 No.1</span>
-        <div style="display: flex; align-items: baseline; gap: 0.7rem; margin-top: 0.3rem;">
-          <span style="color: var(--blue3); font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600;">01</span>
-          <h3 style="color: var(--white); font-size: 1.05rem; font-weight: 400; line-height: 1.45; margin: 0;">ジムのうた<br><span style="color: var(--text-dim); font-size: 0.82rem; letter-spacing: 0.05em;">Jim's Song (feat. fabas)</span></h3>
+      <div class="product-card featured">
+        <span class="product-badge">&#11088; YouTube 再生数 No.1</span>
+        <div class="product-head" style="margin-top:0.3rem;">
+          <span class="product-num">01</span>
+          <h3 class="product-title">ジムのうた<small>Jim's Song (feat. fabas)</small></h3>
         </div>
-        <p style="color: var(--text-dim); font-size: 0.78rem; letter-spacing: 0.1em; margin: 0;">UchitP &amp; Fabas</p>
-        <a href="https://music.apple.com/jp/album/jims-song-feat-fabas-single/1792356765" target="_blank" rel="noopener" style="margin-top: 0.6rem; background: var(--blue1); color: #fff; padding: 0.75rem 1.2rem; border-radius: 8px; text-decoration: none; font-size: 0.85rem; text-align: center; letter-spacing: 0.05em; transition: all 0.3s;" onmouseover="this.style.background='var(--blue2)';" onmouseout="this.style.background='var(--blue1)';">
-          Apple Music で聴く →
-        </a>
-        <a href="https://www.youtube.com/watch?v=f2NpP6DPPYo" target="_blank" rel="noopener" style="background: transparent; color: var(--blue3); padding: 0.6rem 1.2rem; border: 1px solid var(--blue1); border-radius: 8px; text-decoration: none; font-size: 0.82rem; text-align: center; letter-spacing: 0.05em; transition: all 0.3s;" onmouseover="this.style.background='var(--blue1)'; this.style.color='#fff';" onmouseout="this.style.background='transparent'; this.style.color='var(--blue3)';">
-          YouTube で聴く ▶
-        </a>
+        <p class="product-meta">UchitP &amp; Fabas</p>
+        <a href="https://music.apple.com/jp/album/jims-song-feat-fabas-single/1792356765" target="_blank" rel="noopener" class="card-btn">Apple Music で聴く &#8594;</a>
+        <a href="https://www.youtube.com/watch?v=f2NpP6DPPYo" target="_blank" rel="noopener" class="card-btn-ghost">YouTube で聴く &#9654;</a>
       </div>
 
       <!-- 02. グッバイ宣言 -->
-      <div class="music-product-card" style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.6rem; display: flex; flex-direction: column; gap: 0.7rem; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--blue2)'; this.style.transform='translateY(-3px)';" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)';">
-        <div style="display: flex; align-items: baseline; gap: 0.7rem;">
-          <span style="color: var(--blue3); font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600;">02</span>
-          <h3 style="color: var(--white); font-size: 1.05rem; font-weight: 400; line-height: 1.45; margin: 0;">グッバイ宣言<br><span style="color: var(--text-dim); font-size: 0.82rem; letter-spacing: 0.05em;">〜忖度なんかいらない〜</span></h3>
+      <div class="product-card">
+        <div class="product-head">
+          <span class="product-num">02</span>
+          <h3 class="product-title">グッバイ宣言<small>〜忖度なんかいらない〜</small></h3>
         </div>
-        <p style="color: var(--text-dim); font-size: 0.78rem; letter-spacing: 0.1em; margin: 0;">2025.02.18 release</p>
-        <a href="https://linkco.re/NEQgqgRf" target="_blank" rel="noopener" style="margin-top: 0.6rem; background: var(--blue1); color: #fff; padding: 0.75rem 1.2rem; border-radius: 8px; text-decoration: none; font-size: 0.85rem; text-align: center; letter-spacing: 0.05em; transition: all 0.3s;" onmouseover="this.style.background='var(--blue2)';" onmouseout="this.style.background='var(--blue1)';">
-          各ストアで聴く・購入する →
-        </a>
+        <p class="product-meta">2025.02.18 release</p>
+        <a href="https://linkco.re/NEQgqgRf" target="_blank" rel="noopener" class="card-btn">各ストアで聴く・購入する &#8594;</a>
       </div>
 
       <!-- 03. 希望の羽根 -->
-      <div class="music-product-card" style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.6rem; display: flex; flex-direction: column; gap: 0.7rem; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--blue2)'; this.style.transform='translateY(-3px)';" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)';">
-        <div style="display: flex; align-items: baseline; gap: 0.7rem;">
-          <span style="color: var(--blue3); font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600;">03</span>
-          <h3 style="color: var(--white); font-size: 1.05rem; font-weight: 400; line-height: 1.45; margin: 0;">希望の羽根<br><span style="color: var(--text-dim); font-size: 0.82rem; letter-spacing: 0.05em;">Acoustic Ver.</span></h3>
+      <div class="product-card">
+        <div class="product-head">
+          <span class="product-num">03</span>
+          <h3 class="product-title">希望の羽根<small>Acoustic Ver.</small></h3>
         </div>
-        <p style="color: var(--text-dim); font-size: 0.78rem; letter-spacing: 0.1em; margin: 0;">2025 release</p>
-        <a href="https://linkco.re/33PupmE5" target="_blank" rel="noopener" style="margin-top: 0.6rem; background: var(--blue1); color: #fff; padding: 0.75rem 1.2rem; border-radius: 8px; text-decoration: none; font-size: 0.85rem; text-align: center; letter-spacing: 0.05em; transition: all 0.3s;" onmouseover="this.style.background='var(--blue2)';" onmouseout="this.style.background='var(--blue1)';">
-          各ストアで聴く・購入する →
-        </a>
+        <p class="product-meta">2025 release</p>
+        <a href="https://linkco.re/33PupmE5" target="_blank" rel="noopener" class="card-btn">各ストアで聴く・購入する &#8594;</a>
       </div>
 
       <!-- 04. ウォッカの波、ラムの風 -->
-      <div class="music-product-card" style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.6rem; display: flex; flex-direction: column; gap: 0.7rem; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--blue2)'; this.style.transform='translateY(-3px)';" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)';">
-        <div style="display: flex; align-items: baseline; gap: 0.7rem;">
-          <span style="color: var(--blue3); font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600;">04</span>
-          <h3 style="color: var(--white); font-size: 1.05rem; font-weight: 400; line-height: 1.45; margin: 0;">ウォッカの波、ラムの風<br><span style="color: var(--text-dim); font-size: 0.82rem; letter-spacing: 0.05em;">Remix</span></h3>
+      <div class="product-card">
+        <div class="product-head">
+          <span class="product-num">04</span>
+          <h3 class="product-title">ウォッカの波、ラムの風<small>Remix</small></h3>
         </div>
-        <p style="color: var(--text-dim); font-size: 0.78rem; letter-spacing: 0.1em; margin: 0;">2025 release</p>
-        <a href="https://linkco.re/XzNexeR2" target="_blank" rel="noopener" style="margin-top: 0.6rem; background: var(--blue1); color: #fff; padding: 0.75rem 1.2rem; border-radius: 8px; text-decoration: none; font-size: 0.85rem; text-align: center; letter-spacing: 0.05em; transition: all 0.3s;" onmouseover="this.style.background='var(--blue2)';" onmouseout="this.style.background='var(--blue1)';">
-          各ストアで聴く・購入する →
-        </a>
+        <p class="product-meta">2025 release</p>
+        <a href="https://linkco.re/XzNexeR2" target="_blank" rel="noopener" class="card-btn">各ストアで聴く・購入する &#8594;</a>
       </div>
 
       <!-- 05. バレンタインの夜に -->
-      <div class="music-product-card" style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.6rem; display: flex; flex-direction: column; gap: 0.7rem; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--blue2)'; this.style.transform='translateY(-3px)';" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)';">
-        <div style="display: flex; align-items: baseline; gap: 0.7rem;">
-          <span style="color: var(--blue3); font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600;">05</span>
-          <h3 style="color: var(--white); font-size: 1.05rem; font-weight: 400; line-height: 1.45; margin: 0;">バレンタインの夜に</h3>
+      <div class="product-card">
+        <div class="product-head">
+          <span class="product-num">05</span>
+          <h3 class="product-title">バレンタインの夜に</h3>
         </div>
-        <p style="color: var(--text-dim); font-size: 0.78rem; letter-spacing: 0.1em; margin: 0;">2025 release</p>
-        <a href="https://linkco.re/m5mzmbEz" target="_blank" rel="noopener" style="margin-top: 0.6rem; background: var(--blue1); color: #fff; padding: 0.75rem 1.2rem; border-radius: 8px; text-decoration: none; font-size: 0.85rem; text-align: center; letter-spacing: 0.05em; transition: all 0.3s;" onmouseover="this.style.background='var(--blue2)';" onmouseout="this.style.background='var(--blue1)';">
-          各ストアで聴く・購入する →
-        </a>
+        <p class="product-meta">2025 release</p>
+        <a href="https://linkco.re/m5mzmbEz" target="_blank" rel="noopener" class="card-btn">各ストアで聴く・購入する &#8594;</a>
       </div>
 
       <!-- 06. 夜の手 -->
-      <div class="music-product-card" style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.6rem; display: flex; flex-direction: column; gap: 0.7rem; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--blue2)'; this.style.transform='translateY(-3px)';" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)';">
-        <div style="display: flex; align-items: baseline; gap: 0.7rem;">
-          <span style="color: var(--blue3); font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600;">06</span>
-          <h3 style="color: var(--white); font-size: 1.05rem; font-weight: 400; line-height: 1.45; margin: 0;">夜の手<br><span style="color: var(--text-dim); font-size: 0.82rem; letter-spacing: 0.05em;">feat. うっちーP [Remix]</span></h3>
+      <div class="product-card">
+        <div class="product-head">
+          <span class="product-num">06</span>
+          <h3 class="product-title">夜の手<small>feat. うっちーP [Remix]</small></h3>
         </div>
-        <p style="color: var(--text-dim); font-size: 0.78rem; letter-spacing: 0.1em; margin: 0;">kiku &amp; Fabas</p>
-        <a href="https://linkco.re/HCMxzyGu" target="_blank" rel="noopener" style="margin-top: 0.6rem; background: var(--blue1); color: #fff; padding: 0.75rem 1.2rem; border-radius: 8px; text-decoration: none; font-size: 0.85rem; text-align: center; letter-spacing: 0.05em; transition: all 0.3s;" onmouseover="this.style.background='var(--blue2)';" onmouseout="this.style.background='var(--blue1)';">
-          各ストアで聴く・購入する →
-        </a>
+        <p class="product-meta">kiku &amp; Fabas</p>
+        <a href="https://linkco.re/HCMxzyGu" target="_blank" rel="noopener" class="card-btn">各ストアで聴く・購入する &#8594;</a>
       </div>
 
       <!-- 07. 現代の将軍 -->
-      <div class="music-product-card" style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.6rem; display: flex; flex-direction: column; gap: 0.7rem; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--blue2)'; this.style.transform='translateY(-3px)';" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)';">
-        <div style="display: flex; align-items: baseline; gap: 0.7rem;">
-          <span style="color: var(--blue3); font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600;">07</span>
-          <h3 style="color: var(--white); font-size: 1.05rem; font-weight: 400; line-height: 1.45; margin: 0;">現代の将軍<br><span style="color: var(--text-dim); font-size: 0.82rem; letter-spacing: 0.05em;">feat. うっちーP [Remix]</span></h3>
+      <div class="product-card">
+        <div class="product-head">
+          <span class="product-num">07</span>
+          <h3 class="product-title">現代の将軍<small>feat. うっちーP [Remix]</small></h3>
         </div>
-        <p style="color: var(--text-dim); font-size: 0.78rem; letter-spacing: 0.1em; margin: 0;">Fabas</p>
-        <a href="https://linkco.re/GpEHAPN7" target="_blank" rel="noopener" style="margin-top: 0.6rem; background: var(--blue1); color: #fff; padding: 0.75rem 1.2rem; border-radius: 8px; text-decoration: none; font-size: 0.85rem; text-align: center; letter-spacing: 0.05em; transition: all 0.3s;" onmouseover="this.style.background='var(--blue2)';" onmouseout="this.style.background='var(--blue1)';">
-          各ストアで聴く・購入する →
-        </a>
+        <p class="product-meta">Fabas</p>
+        <a href="https://linkco.re/GpEHAPN7" target="_blank" rel="noopener" class="card-btn">各ストアで聴く・購入する &#8594;</a>
       </div>
 
     </div>
 
-    <p style="text-align:center; color: var(--text-dim); font-size: 0.82rem; line-height: 1.7; margin-top: 2.5rem; max-width: 640px; margin-left: auto; margin-right: auto;">
+    <p class="store-note">
       ※ 各ボタンは「linkco.re」スマートリンクです。ご利用の音楽サービスを自動判別してご案内します。<br>
-      新曲リリース情報は <a href="https://www.youtube.com/@uchida51468032" target="_blank" rel="noopener" style="color: var(--blue3);">YouTube</a> でも発信中です。
+      新曲リリース情報は <a href="https://www.youtube.com/channel/UCGkI3Cpu_a6yvizyqQLbKKA?sub_confirmation=1" target="_blank" rel="noopener">YouTube</a> でも発信中です。
     </p>
   </div>
 </section>
@@ -1483,43 +1820,36 @@
         <a href="https://store.line.me/stickershop/product/33511657/ja" target="_blank" rel="noopener" class="stamp-btn">LINE STORE で購入</a>
       </div>
     </div>
+  </div>
 </section>
 
 <!-- COUNSELING -->
-<section id="counseling" style="background: var(--bg2); padding: 5rem 1.5rem; position: relative; overflow: hidden;">
-  <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(74,142,201,0.08) 0%, transparent 70%); pointer-events: none;"></div>
-  <div class="inner" style="text-align:center; position: relative; z-index: 1; max-width: 900px; margin: 0 auto;">
-    <p class="sec-label">Counseling</p>
-    <h2 class="sec-title" style="margin-bottom:0.8rem;">カウンセリング窓口</h2>
-    <p style="color: var(--blue3); font-size: 0.95rem; letter-spacing: 0.15em; margin-bottom: 1.2rem;">上級心理カウンセラー × Fabasメソッド®</p>
-    <p style="color: var(--text); font-size: 0.95rem; line-height: 1.9; margin-bottom: 2.5rem; max-width: 640px; margin-left: auto; margin-right: auto;">
-      夜中にひとりで抱えている想いを、ここでそっと吐き出してみませんか。<br>
-      ココナラで <strong style="color: var(--blue3);">24時間以内</strong> のご返信を保証しています。
-    </p>
+<section id="counseling">
+  <div class="inner">
+    <div class="counseling-card reveal">
+      <p class="sec-label">Counseling</p>
+      <h2 class="sec-title" style="margin-bottom:0.8rem;">カウンセリング窓口</h2>
+      <p class="counseling-sub">上級心理カウンセラー &#215; Fabasメソッド&#174;</p>
+      <span class="reply-badge">&#128338; 24時間以内のご返信を保証</span>
+      <p class="counseling-lead">
+        夜中にひとりで抱えている想いを、ここでそっと吐き出してみませんか。<br>
+        ココナラで <strong>24時間以内</strong> のご返信を保証しています。
+      </p>
 
-    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 0.8rem; margin-bottom: 2.5rem;">
-      <a href="https://coconala.com/services/4192277" target="_blank" rel="noopener" style="background: var(--surface); color: var(--blue3); padding: 0.9rem 1.6rem; border: 1px solid var(--blue1); border-radius: 30px; text-decoration: none; font-size: 0.9rem; transition: all 0.3s; display: inline-block;" onmouseover="this.style.background='var(--blue1)'; this.style.color='#fff';" onmouseout="this.style.background='var(--surface)'; this.style.color='var(--blue3)';">
-        恋愛相談 ¥1,000
-      </a>
-      <a href="https://coconala.com/services/4192350" target="_blank" rel="noopener" style="background: var(--surface); color: var(--blue3); padding: 0.9rem 1.6rem; border: 1px solid var(--blue1); border-radius: 30px; text-decoration: none; font-size: 0.9rem; transition: all 0.3s; display: inline-block;" onmouseover="this.style.background='var(--blue1)'; this.style.color='#fff';" onmouseout="this.style.background='var(--surface)'; this.style.color='var(--blue3)';">
-        人間関係相談 ¥1,000
-      </a>
-      <a href="https://coconala.com/services/4192359" target="_blank" rel="noopener" style="background: var(--surface); color: var(--blue3); padding: 0.9rem 1.6rem; border: 1px solid var(--blue1); border-radius: 30px; text-decoration: none; font-size: 0.9rem; transition: all 0.3s; display: inline-block;" onmouseover="this.style.background='var(--blue1)'; this.style.color='#fff';" onmouseout="this.style.background='var(--surface)'; this.style.color='var(--blue3)';">
-        メンタル相談 ¥1,000
-      </a>
-      <a href="https://coconala.com/services/4192364" target="_blank" rel="noopener" style="background: var(--surface); color: var(--blue3); padding: 0.9rem 1.6rem; border: 1px solid var(--blue1); border-radius: 30px; text-decoration: none; font-size: 0.9rem; transition: all 0.3s; display: inline-block;" onmouseover="this.style.background='var(--blue1)'; this.style.color='#fff';" onmouseout="this.style.background='var(--surface)'; this.style.color='var(--blue3)';">
-        仕事相談 ¥1,000
-      </a>
+      <div class="service-grid">
+        <a href="https://coconala.com/services/4192277" target="_blank" rel="noopener" class="service-tile">恋愛相談 <span class="price">&yen;1,000 &#8594;</span></a>
+        <a href="https://coconala.com/services/4192350" target="_blank" rel="noopener" class="service-tile">人間関係相談 <span class="price">&yen;1,000 &#8594;</span></a>
+        <a href="https://coconala.com/services/4192359" target="_blank" rel="noopener" class="service-tile">メンタル相談 <span class="price">&yen;1,000 &#8594;</span></a>
+        <a href="https://coconala.com/services/4192364" target="_blank" rel="noopener" class="service-tile">仕事相談 <span class="price">&yen;1,000 &#8594;</span></a>
+      </div>
+
+      <a href="https://coconala.com/users/6047095" target="_blank" rel="noopener" class="btn">ココナラでお悩みを聴く &#8594;</a>
+
+      <p class="counseling-cred">
+        上級心理カウンセラー / 心理カウンセラー（資格保有）<br>
+        YouTubeチャンネル登録者 6.72万人 / Fabasメソッド&#174;開発者・うっちーピー
+      </p>
     </div>
-
-    <a href="https://coconala.com/users/6047095" target="_blank" rel="noopener" style="display: inline-block; background: linear-gradient(135deg, var(--blue1), var(--blue2)); color: #fff; padding: 1rem 2.4rem; border-radius: 30px; text-decoration: none; font-size: 1rem; letter-spacing: 0.05em; box-shadow: 0 4px 20px rgba(74,142,201,0.3); transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 28px rgba(74,142,201,0.5)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(74,142,201,0.3)';">
-      ココナラでお悩みを聴く →
-    </a>
-
-    <p style="color: var(--text-dim); font-size: 0.78rem; margin-top: 2.5rem; line-height: 1.8;">
-      上級心理カウンセラー / 心理カウンセラー（資格保有）<br>
-      YouTubeチャンネル登録者 6.72万人 / Fabasメソッド®開発者・うっちーピー
-    </p>
   </div>
 </section>
 
@@ -1552,9 +1882,20 @@
 </section>
 
 <footer>
+  <a href="#" class="to-top" aria-label="ページの先頭へ戻る">&#8593;</a>
   <p class="f-logo">Fabas</p>
-  <p>&copy; 2026 Fabas. All Rights Reserved.</p>
-  <p style="margin-top:0.5rem; opacity:0.4;">Where truth meets fiction.</p>
+  <p class="f-tag">Where truth meets fiction.</p>
+  <ul class="f-nav">
+    <li><a href="#concept">Concept</a></li>
+    <li><a href="#members">Members</a></li>
+    <li><a href="#music">Music</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#shop">Store</a></li>
+    <li><a href="#stamp">Stamp</a></li>
+    <li><a href="#counseling">Counseling</a></li>
+    <li><a href="#links">Links</a></li>
+  </ul>
+  <p class="f-copy">&copy; 2026 Fabas. All Rights Reserved.</p>
 </footer>
 
 <script>
@@ -1590,6 +1931,60 @@
     navList.querySelectorAll('a').forEach(a => a.addEventListener('click', close));
     // ESCで閉じる
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+  })();
+
+  // ===== 楽曲ファサード: クリックされた時だけYouTube iframeを生成 =====
+  // (初期ロードで20本のembedを読み込まないための遅延読込。autoplay=1で即再生)
+  document.querySelectorAll('button.track-video').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const vid = btn.dataset.vid;
+      const start = btn.dataset.start || '0';
+      if (!vid) return;
+      const iframe = document.createElement('iframe');
+      iframe.src = 'https://www.youtube.com/embed/' + vid + '?autoplay=1&start=' + start;
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      iframe.allowFullscreen = true;
+      iframe.title = btn.getAttribute('aria-label') || 'YouTube video';
+      btn.replaceChildren(iframe); // サムネ+再生ボタンをiframeに置換
+    }, { once: true });
+  });
+
+  // ===== スクロール現在地: 表示中セクションのnavリンクに .active を付与 =====
+  (function() {
+    const sectionIds = ['concept','members','music','gallery','shop','stamp','counseling','links'];
+    const navAnchors = {};
+    document.querySelectorAll('.nav-links a').forEach(a => {
+      navAnchors[a.getAttribute('href').slice(1)] = a;
+    });
+    const spy = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          Object.values(navAnchors).forEach(a => a.classList.remove('active'));
+          const link = navAnchors[e.target.id];
+          if (link) link.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-30% 0px -60% 0px' }); // 画面中央帯に入ったセクションを現在地とみなす
+    sectionIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) spy.observe(el);
+    });
+  })();
+
+  // ===== ページ読了率バー (nav下端の1pxライン) =====
+  (function() {
+    const bar = document.getElementById('scroll-progress');
+    if (!bar) return;
+    let ticking = false;
+    const update = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      bar.style.width = (max > 0 ? (window.scrollY / max) * 100 : 0) + '%';
+      ticking = false;
+    };
+    window.addEventListener('scroll', () => {
+      if (!ticking) { requestAnimationFrame(update); ticking = true; }
+    }, { passive: true });
+    update();
   })();
 
 
