@@ -133,7 +133,12 @@
   let lap = 1;           // 1=表（卒業5000万） / 2=裏面（敵・ダメージ2倍・1億）
   let titleReady = false;
   let endLock = 0;
-  function endGame(s){ state=s; endLock=Date.now()+1000; }
+  let nextLap = 1;   // 次に始める周（1=300万→5000万 / 2=5000万→1億）。クリアで自動更新（内田さん指示の自動周回）
+  function endGame(s){ state=s; endLock=Date.now()+1000;
+    if(s==='win') nextLap=2;          // 1周目クリア→次は2周目（5000万を持ち越し・1億へ）
+    else if(s==='trueWin') nextLap=1; // 2周目(1億)クリア→最初に戻る
+    else if(s==='over') nextLap=1;    // 破産→最初からやり直し
+  }
   function goal(){ return lap===1? GOAL : GOAL2; }
 
   // オープニング（学長語でルール説明）
@@ -230,10 +235,10 @@
     pool = ENEMIES.map((e,i)=>i);
     for(let i=pool.length-1;i>0;i--){ const j=rnd(0,i); const t=pool[i]; pool[i]=pool[j]; pool[j]=t; }
   }
-  function startGame(){ lap=1; resetHero(); shuffle(); nextEnemy(); }
+  function startGame(){ lap=nextLap; resetHero(); if(lap===2){ hero.hp=GOAL; } shuffle(); nextEnemy(); }  // 2周目は5000万を現金で持ち越してスタート
   function nextEnemy(){
-    if(hero.hp>=goal()){ curE=BOSS; }              // 卒業ライン到達 → ラスボス戦
-    else { if(!pool.length) shuffle(); curE=ENEMIES[pool.shift()]; }
+    if(hero.hp>=goal()){ endGame(lap===1?'win':'trueWin'); return; }   // 卒業ライン(5000万/裏面1億)到達＝即クリア
+    if(!pool.length) shuffle(); curE=ENEMIES[pool.shift()];
     startBattle();
   }
   function startBattle(){
@@ -286,6 +291,7 @@
     if(b.queue.length>0) return;
     if(b.pendOver){ endGame('over'); return; }
     if(b.pendKill){ goChoice(); return; }   // 倒した → 倒したあとの問答へ（勝利曲は問答のBGMで鳴る）
+    if(hero.hp>=goal()){ endGame(lap===1?'win':'trueWin'); return; }   // 戦闘中に5000万(裏面1億)到達でも即クリア
     b.phase='input';
   }
 
@@ -355,9 +361,7 @@
       return;
     }
     if(state==='win'){
-      if(Date.now()<=endLock) return;
-      if(up) startLap2();                             // ↑＝裏面（1億）へ
-      else if(ok||dn){ resetHero(); lap=1; state='title'; }
+      if(Date.now()>endLock && ok){ state='title'; }   // クリア→タイトルへ（次に始めると自動で2周目＝nextLap）
       return;
     }
     if(state==='trueWin' || state==='over'){
@@ -561,8 +565,8 @@
     centerText('しさん '+hero.hp+'万 ＝ 経済的自由！',332,'#ffffff',13);
     const allF = forceCount()>=5;
     centerText(allF?'５つの力コンプ！ 真の卒業！':'ゆうしゃは 卒業した！',352, allF?'#f2c14e':'#7ef0b0',13);
-    if(Math.floor(Date.now()/450)%2===0) centerText('↑ うらめん（１億円）に ちょうせん！',378,'#ffd86a',13);
-    centerText('Ｚ／↓：タイトルへ',400,'#dfe6f0',12);
+    if(Math.floor(Date.now()/450)%2===0) centerText('つぎは ２周目！ ５０００万を持って 一億円へ！',378,'#ffd86a',13);
+    centerText('Ｚ で タイトルへ',400,'#dfe6f0',12);
   }
   function drawTrueWin(){
     fillRect(0,0,480,416,'#0a1638');
