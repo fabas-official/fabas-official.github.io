@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>学長クエスト 〜小金持ち山 登頂の道〜</title>
+<style>
+  html,body{margin:0;height:100%;background:#06060d;color:#cfcfe6;
+    font-family:"MS Gothic","Yu Gothic",monospace;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:12px;}
+  h1{font-size:17px;font-weight:normal;color:#f2c14e;margin:8px 0 0;letter-spacing:1px;}
+  #screen{image-rendering:pixelated;width:min(92vw,640px);height:auto;touch-action:manipulation;
+    border:3px solid #3a3a52;border-radius:8px;background:#000;box-shadow:0 0 0 4px #06060d;}
+  .hint{font-size:12px;color:#7a7a96;text-align:center;line-height:1.7;margin:6px 8px;}
+  kbd{background:#23234a;border:1px solid #5a5a86;border-radius:4px;padding:1px 6px;color:#f4f4f8;}
+  #touchpad{display:flex;gap:14px;align-items:center;justify-content:center;margin-bottom:16px;}
+  #touchpad button{font-family:inherit;font-size:20px;min-width:66px;min-height:54px;
+    background:#23234a;color:#f4f4f8;border:2px solid #5a5a86;border-radius:12px;
+    padding:8px 16px;cursor:pointer;user-select:none;touch-action:manipulation;}
+  #touchpad button:active{background:#3a3a6e;}
+  #touchpad button.ok{min-width:130px;color:#f2c14e;border-color:#f2c14e;}
+</style>
+</head>
+<body>
+  <h1>学長クエスト 〜小金持ち山 登頂の道〜</h1>
+  <canvas id="screen" width="480" height="416"></canvas>
+  <div class="hint">スマホ：下のボタン／画面タップ　・　ＰＣ：<kbd>↑</kbd><kbd>↓</kbd>でえらぶ・<kbd>Z</kbd>か<kbd>Enter</kbd>でけってい</div>
+  <div id="touchpad">
+    <button data-k="ArrowUp" aria-label="うえ">▲</button>
+    <button data-k="ArrowDown" aria-label="した">▼</button>
+    <button data-k="z" class="ok">けってい</button>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+  const cv = document.getElementById('screen');
+  const ctx = cv.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+
+  // ---- 画像素材（ChatGPT生成・透過済み）----
+  const IMG = {};
+  ['hero','jelly','guard','imp','title','sensei','goodend','badend'].forEach(function(n){
+    const im = new Image(); im.src = 'assets/'+n+'.png'; IMG[n] = im;
+  });
+
+  // ===== サウンド（内田さん用意の音源を名前どおりに使用）=====
+  const AUDIO = {};
+  function loadAudio(key,file,loop){ const a=new Audio('assets/'+file); a.loop=!!loop; a.preload='auto'; AUDIO[key]=a; }
+  loadAudio('opening','オープニングテーマ.mp3',true);   // タイトル＆説明BGM
+  loadAudio('battle','戦闘BGM.mp4',true);                // 戦闘・問答BGM
+  loadAudio('good','グッドエンディング.mp3',true);       // 卒業BGM
+  loadAudio('bad','バッドエンディング.mp3',true);        // 破産BGM
+  loadAudio('attack','攻撃音.mp3');                       // こちらの攻撃／良い選択
+  loadAudio('ehit','敵の攻撃音.mp3');                     // 敵の攻撃／毒キノコを食べた
+  loadAudio('bend','戦闘終了の音.mp3');                   // 予備（未使用）
+  loadAudio('fanfare','戦闘勝利ファンファーレ.mp3');      // 敵を倒した瞬間
+  loadAudio('lose','戦闘負け.mp3');                       // 予備（未使用）
+  ['opening','good','bad','fanfare'].forEach(k=>{ if(AUDIO[k]) AUDIO[k].volume=0.45; });
+  if(AUDIO['battle']) AUDIO['battle'].volume=0.15;                       // 戦闘BGM：しっかり聞こえる程度に（内田さん調整 2026-06-11 0.06→0.15）
+  ['attack','ehit'].forEach(k=>{ if(AUDIO[k]) AUDIO[k].volume=0.75; });
+  let audioOn=false, curBGM=null, pendingBGM='opening';
+  function playBGM(key){
+    if(!audioOn){ pendingBGM=key; return; }
+    if(curBGM===key) return;
+    // 場面が変わるたび 前の曲を“全部”止めてから鳴らす（重なり防止）
+    ['opening','battle','good','bad','fanfare'].forEach(function(k){ if(AUDIO[k]){ try{ AUDIO[k].pause(); AUDIO[k].currentTime=0; }catch(e){} } });
+    curBGM=key; const a=AUDIO[key];
+    if(a){ try{ a.currentTime=0; }catch(e){} a.play().catch(()=>{}); }
+  }
+  function sfx(key){
+    if(!audioOn) return; const a=AUDIO[key]; if(!a) return;
+    try{ const c=a.cloneNode(true); c.volume=a.volume; c.play().catch(()=>{}); }
+    catch(e){ try{ a.currentTime=0; a.play().catch(()=>{}); }catch(e2){} }
+  }
+  function unlockAudio(){ if(audioOn) return; audioOn=true; const w=pendingBGM; curBGM=null; pendingBGM=null; playBGM(w); }
+
+  // ---- 描画ヘルパー ----
+  function drawSprite(img, cx, cy, maxW, maxH){
+    if(!img || !img.complete || !img.naturalWidth) return false;
+    let w = img.naturalWidth, h = img.naturalHeight;
+    const s = Math.min(maxW/w, maxH/h); w*=s; h*=s;
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(img, Math.round(cx-w/2), Math.round(cy-h/2), Math.round(w), Math.round(h));
+    ctx.imageSmoothingEnabled = false;
+    return true;
+  }
+  function drawImageContain(img, W, H){
+    if(!img || !img.complete || !img.naturalWidth) return false;
+    const s = Math.min(W/img.naturalWidth, H/img.naturalHeight);
+    const w = img.naturalWidth*s, h = img.naturalHeight*s;
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(img, Math.round((W-w)/2), Math.round((H-h)/2), Math.round(w), Math.round(h));
+    ctx.imageSmoothingEnabled = false;
+    return true;
+  }
+  function drawSpriteFlip(img, cx, cy, maxW, maxH){   // 左右反転（勇者を敵の方へ向ける）
+    if(!img || !img.complete || !img.naturalWidth) return false;
+    let w=img.naturalWidth, h=img.naturalHeight; const s=Math.min(maxW/w,maxH/h); w*=s; h*=s;
+    ctx.save(); ctx.imageSmoothingEnabled=true;
+    ctx.translate(cx,cy); ctx.scale(-1,1);
+    ctx.drawImage(img, Math.round(-w/2), Math.round(-h/2), Math.round(w), Math.round(h));
+    ctx.restore(); ctx.imageSmoothingEnabled=false;
+    return true;
+  }
+  function drawCover(img, W, H, topAnchor){
+    if(!img || !img.complete || !img.naturalWidth) return false;
+    const s=Math.max(W/img.naturalWidth, H/img.naturalHeight);
+    const w=img.naturalWidth*s, h=img.naturalHeight*s;
+    const x=Math.round((W-w)/2), y=topAnchor? 0 : Math.round((H-h)/2);
+    ctx.imageSmoothingEnabled=true;
+    ctx.drawImage(img, x, y, Math.round(w), Math.round(h));
+    ctx.imageSmoothingEnabled=false;
+    return true;
+  }
+
+  // ===== 主人公（HP＝お金/万円。集めた力で攻撃が強くなる）=====
+  const START_HP = 300, GOAL = 5000, GOAL2 = 10000, BANKRUPT = -500;   // スタート300万・卒業5000万・裏面1億・破産−500万
+  const hero = { hp:START_HP, forces:{稼ぐ:0,貯める:0,増やす:0,守る:0,使う:0}, levelMax:3 };
+  const FORCES = ['稼ぐ','貯める','増やす','守る','使う'];
+  function force(name){ if(hero.forces[name]!=null && hero.forces[name]<3) hero.forces[name]++; }   // 各力 最大3個
+  function forceCount(){ let c=0; for(const f of FORCES) if(hero.forces[f]>0) c++; return c; }        // 持ってる力の種類数(0〜5)
+  function addHP(n){
+    hero.hp += n;
+    const lv = Math.max(3, Math.floor(Math.max(0,hero.hp)/100));
+    if(lv > hero.levelMax) hero.levelMax = lv;
+  }
+  function resetHero(){ hero.hp=START_HP; hero.forces={稼ぐ:0,貯める:0,増やす:0,守る:0,使う:0}; hero.levelMax=3; }
+  const rnd = (a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+
+  // ===== 状態管理 =====
+  let state = 'title';   // title / intro / battle / choice / win / trueWin / over
+  let lap = 1;           // 1=表（卒業5000万） / 2=裏面（敵・ダメージ2倍・1億）
+  let titleReady = false;
+  let endLock = 0;
+  function endGame(s){ state=s; endLock=Date.now()+1000; }
+  function goal(){ return lap===1? GOAL : GOAL2; }
+
+  // オープニング（学長語でルール説明）
+  const INTRO = [
+    "おはこんばんちは！ 学長じゃ。",
+    "めざすは『小金持ち山』の さんちょう──\nしさん ５０００万円じゃ！",
+    "やってくるのは『毒キノコ』の まもの。\nリボ・ワンルーム・ＦＸ・ぼったくり商品…ぜんぶ敵じゃ。",
+    "まずは ５つの力（かせぐ・ためる・ふやす・\nまもる・つかう）で たたかって たおす。",
+    "たおしたあとが だいじ。\n『それ、やる？やらん？』の えらびじゃ。",
+    "毒キノコに 手を出せば しさんは ガクッ。\nやめておけば ＋ボーナス＆５つの力ＧＥＴ！",
+    "力を あつめるほど こうげきも 強くなる。\nしさんが −５００万で 破産。 きをつけよ。",
+    "ゆけ ゆうしゃ！ 今日も一日、ご安全に！"
+  ];
+  let introI = 0;
+
+  // ===== 敵＝毒キノコ（全41体＋ラスボス）=====
+  // 絵は3ベース（jelly=スライム / guard=騎士 / imp=悪魔）を色フィルターで増殖。
+  const FILT = {
+    青:'none',                                              水:'hue-rotate(18deg) saturate(1.2) brightness(1.1)',
+    緑:'hue-rotate(95deg) saturate(1.4)',                   黄:'hue-rotate(45deg) saturate(1.7) brightness(1.1)',
+    橙:'hue-rotate(22deg) saturate(2) brightness(1.05)',    桃:'hue-rotate(290deg) saturate(1.3) brightness(1.15)',
+    白:'saturate(0.25) brightness(1.45)',                   金:'hue-rotate(38deg) saturate(2.2) brightness(1.25)',
+    紫:'hue-rotate(255deg) saturate(1.5)',                  赤:'hue-rotate(330deg) saturate(1.7)',
+    灰:'grayscale(1) brightness(1.3) contrast(1.1)',        銀:'grayscale(0.8) brightness(1.3)',
+    黒:'brightness(0.5) saturate(0.7)',                     茶:'sepia(0.7) saturate(1.6) hue-rotate(-15deg) brightness(0.85)',
+    青紫:'hue-rotate(245deg) saturate(1.5)',                暗赤:'hue-rotate(330deg) saturate(2.2) brightness(0.6)'
+  };
+  // {n:名前, s:絵, c:色, eat:手を出した時のマイナス, q:倒した後の問い, b:やる(毒), g:やめる(守る), f:やめると得る力}
+  const ENEMIES = [
+    {n:'ちょちく型ほけん',     s:'jelly', c:'青',  eat:200,  q:'「貯蓄もできる」保険、\n入る？',                b:'入る',        g:'掛け捨て＋自分で投資', f:'守る'},
+    {n:'がいか預金',           s:'jelly', c:'水',  eat:150,  q:'金利が高い 外貨預金、\nやる？',                b:'預ける',      g:'手を出さない',         f:'守る'},
+    {n:'シクミン',             s:'jelly', c:'灰',  eat:500,  q:'「元本保証っぽい」\n仕組債を 買う？',          b:'買う',        g:'分からない物は買わない', f:'守る'},
+    {n:'アクティブ投信',       s:'jelly', c:'緑',  eat:200,  q:'プロが選ぶ\nアクティブファンド、買う？',      b:'買う',        g:'ＳＢＩなどで 自分で 積立', f:'増やす'},
+    {n:'まいつき分配ガニ',     s:'jelly', c:'黄',  eat:300,  q:'毎月お金がもらえる\n投信、買う？',            b:'買う',        g:'オルカンを 積立てる',  f:'増やす'},
+    {n:'レバレッジ商品',       s:'jelly', c:'灰',  eat:500,  q:'２倍３倍に増える\nレバレッジ商品、買う？',    b:'買う',        g:'等倍で コツコツ',      f:'守る'},
+    {n:'バイナリーくじ',       s:'jelly', c:'灰',  eat:300,  q:'上がるか下がるか\n当てるだけ、やる？',        b:'やる',        g:'投資とギャンブルは別', f:'守る'},
+    {n:'ソシャレン沼',         s:'jelly', c:'灰',  eat:500,  q:'利回り１０％で\nお金を貸す、やる？',          b:'出資する',    g:'うますぎる利回りは疑う', f:'守る'},
+    {n:'おまかせラップ',       s:'jelly', c:'橙',  eat:150,  q:'ぜんぶ おまかせ運用、\n契約する？',            b:'契約する',    g:'自分で インデックス',  f:'増やす'},
+    {n:'サブリースの魔王',     s:'imp',   c:'紫',  eat:3000, q:'「家賃保証」で アパート\n経営、する？',        b:'契約する',    g:'うまい保証話は ワナ',  f:'守る'},
+    {n:'ワンルームデーモン',   s:'imp',   c:'赤',  eat:3000, q:'節税になる\nワンルーム投資、する？',          b:'買う',        g:'利回りを計算して断る', f:'守る'},
+    {n:'せつぜい商品',         s:'jelly', c:'灰',  eat:500,  q:'節税になる この商品、\n買う？',                b:'買う',        g:'節税ありきの投資はしない', f:'守る'},
+    {n:'相続アパートゴーレム', s:'imp',   c:'茶',  eat:3000, q:'相続税対策に\nアパート、建てる？',            b:'建てる',      g:'対策ありきで 建てない', f:'守る'},
+    {n:'こうこく投資',         s:'jelly', c:'桃',  eat:300,  q:'広告で見た「人気の投資」、\n飛びつく？',      b:'飛びつく',    g:'広告の投資は スルー',  f:'守る'},
+    {n:'リバースモーゲージ',   s:'jelly', c:'白',  eat:300,  q:'家を担保に お金を借りる、\n契約する？',        b:'契約する',    g:'安易に担保にしない',   f:'守る'},
+    {n:'リースバック',         s:'jelly', c:'金',  eat:500,  q:'家を売って そのまま住む、\n契約する？',        b:'契約する',    g:'慌てて 売らない',      f:'守る'},
+    {n:'たいよう光パネル',     s:'jelly', c:'橙',  eat:300,  q:'屋根で発電 儲かる、\n設置する？',            b:'設置する',    g:'採算を よく計算',      f:'守る'},
+    {n:'さきもの取引',         s:'jelly', c:'灰',  eat:500,  q:'先物で 大きく勝負、\nやる？',                  b:'やる',        g:'初心者は手を出さない', f:'守る'},
+    {n:'オフショア投資',       s:'jelly', c:'灰',  eat:500,  q:'海外の高利回りファンド、\n出資する？',        b:'出資する',    g:'海外の話に 乗らない',  f:'守る'},
+    {n:'あんごう資産',         s:'jelly', c:'紫',  eat:300,  q:'億り人になれる暗号資産、\n全力で買う？',      b:'全力で買う',  g:'余剰資金で 少しだけ',  f:'守る'},
+    {n:'ＦＸデーモン',         s:'imp',   c:'緑',  eat:800,  q:'ＦＸで一発逆転、\nやる？',                    b:'ハイレバで勝負', g:'コツコツ積立に戻る', f:'守る'},
+    {n:'勧誘ガード（銀行員）', s:'imp',   c:'青',  eat:200,  q:'銀行員のおすすめ商品、\n契約する？',          b:'言われるまま契約', g:'その場で 決めない', f:'守る'},
+    {n:'証券マンの勧誘',       s:'imp',   c:'水',  eat:200,  q:'「今が買い時」と言われた、\n買う？',          b:'すすめ通り買う', g:'ネット証券で 自分で', f:'守る'},
+    {n:'マイホームゴーレム',   s:'imp',   c:'灰',  eat:3000, q:'夢のマイホーム、\nフルローンで買う？',        b:'勢いで契約',  g:'身の丈に合う家を冷静に', f:'守る'},
+    {n:'無料ＦＰ相談',         s:'imp',   c:'黄',  eat:200,  q:'無料ＦＰにすすめられた保険、\n入る？',        b:'すすめ保険に入る', g:'無料の裏に 営業あり', f:'守る'},
+    {n:'ほけんショップ',       s:'imp',   c:'橙',  eat:200,  q:'手厚い保険、\n入る？',                        b:'手厚い保険に入る', g:'必要な分だけ 最小限', f:'守る'},
+    {n:'ＩＦＡ',               s:'imp',   c:'銀',  eat:200,  q:'ＩＦＡのすすめる商品、\n買う？',              b:'すすめ商品を買う', g:'誰の利益か 考える', f:'守る'},
+    {n:'残クレガード',         s:'guard', c:'銀',  eat:200,  q:'新車を 残価設定クレジット、\nで買う？',      b:'残クレで買う', g:'中古を 現金で',       f:'守る'},
+    {n:'リボの騎士',           s:'guard', c:'青',  eat:150,  q:'支払いがキツい…\nリボ払いにする？',          b:'リボにする',  g:'一括で 完済',          f:'守る'},
+    {n:'カードローン',         s:'guard', c:'赤',  eat:300,  q:'すぐ借りられる カードローン、\n借りる？',      b:'借りる',      g:'借金せず 貯金から',    f:'守る'},
+    {n:'１円スマホ',           s:'guard', c:'緑',  eat:50,   q:'本体１円 ２年後返却、\n飛びつく？',          b:'飛びつく',    g:'格安ＳＩＭで 十分',    f:'守る'},
+    {n:'金利ゼロ分割',         s:'guard', c:'黄',  eat:50,   q:'金利ゼロの分割払い、\nで買う？',              b:'分割で買う',  g:'必要か 考え現金で',    f:'守る'},
+    {n:'ＨＰのリース',         s:'guard', c:'紫',  eat:150,  q:'月々リースの ＨＰ制作、\n契約する？',        b:'契約する',    g:'相場を調べ 買い切り',  f:'守る'},
+    {n:'アプリのリース',       s:'guard', c:'黒',  eat:150,  q:'リースの集客アプリ、\n導入する？',            b:'契約する',    g:'本当に要るか 吟味',    f:'守る'},
+    {n:'マルチデーモン',       s:'imp',   c:'黒',  eat:500,  q:'友達の「一緒にビジネス」、\n参加する？',      b:'参加する',    g:'きっぱり 断る',        f:'守る'},
+    {n:'あやしい着信',         s:'imp',   c:'灰',  eat:50,   q:'知らない番号の着信、\n折り返す？',            b:'折り返す',    g:'無視・出ない',         f:'守る'},
+    {n:'もうけ話おじさん',     s:'imp',   c:'赤',  eat:800,  q:'「絶対儲かる話」、\nのる？',                  b:'のる',        g:'うまい話は ない',      f:'守る'},
+    {n:'ＤＭ詐欺師',           s:'imp',   c:'青紫', eat:800,  q:'ＤＭ「あなただけに特別案件」、\n返信する？',  b:'返信して送金', g:'ブロックする',        f:'守る'},
+    {n:'訪問セールス',         s:'imp',   c:'緑',  eat:300,  q:'「今だけお得」の訪問営業、\n契約する？',      b:'その場で契約', g:'玄関で 断る',          f:'守る'},
+    {n:'高額スクール',         s:'imp',   c:'金',  eat:200,  q:'「稼げる」高額スクール、\n入る？',            b:'入る',        g:'まず無料・書籍で学ぶ', f:'守る'},
+    {n:'情報商材',             s:'imp',   c:'銀',  eat:150,  q:'「誰でも月１００万」の教材、\n買う？',        b:'買う',        g:'怪しい儲け話は 疑う',  f:'守る'}
+  ];
+  // ラスボス＝借金デーモン（卒業の直前に立ちはだかる最後の誘惑）
+  const BOSS = {n:'シャッキンデーモン', s:'imp', c:'暗赤', eat:3000,
+    q:'ぐふふ…借金で もっと\n大きく 賭けてみんか？', b:'借金して 賭ける', g:'借金なんて しねえ！', f:'使う', boss:true};
+
+  // 敵の戦闘ステータス（絵の種類で強さを決め、裏面は2倍）
+  function statsOf(e){
+    let s;
+    if(e.boss)            s={hp:2600, atk:[28,42], def:40};
+    else if(e.s==='jelly')s = (e.c==='灰') ? {hp:300, atk:[6,10], def:90}   // メタル＝硬い
+                                           : {hp:430, atk:[7,13], def:0};   // ふつうスライム
+    else if(e.s==='guard')s={hp:760, atk:[12,18], def:12};                  // 騎士＝中
+    else                  s={hp:1080, atk:[16,26], def:22};                 // 悪魔＝強
+    return { hp:s.hp*lap, maxhp:s.hp*lap, atk:[s.atk[0]*lap, s.atk[1]*lap], def:s.def };
+  }
+
+  // ===== 進行 =====
+  let pool = [];          // シャッフルした敵の出る順（重複しないよう箱から引く）
+  let curE = null;        // 今の敵
+  let battle = null;      // 戦闘の状態
+  const choice = { sel:0, phase:'select', msg:'', good:false, pendWin:false, pendOver:false };
+
+  function shuffle(){
+    pool = ENEMIES.map((e,i)=>i);
+    for(let i=pool.length-1;i>0;i--){ const j=rnd(0,i); const t=pool[i]; pool[i]=pool[j]; pool[j]=t; }
+  }
+  function startGame(){ lap=1; resetHero(); shuffle(); nextEnemy(); }
+  function nextEnemy(){
+    if(hero.hp>=goal()){ curE=BOSS; }              // 卒業ライン到達 → ラスボス戦
+    else { if(!pool.length) shuffle(); curE=ENEMIES[pool.shift()]; }
+    startBattle();
+  }
+  function startBattle(){
+    const st=statsOf(curE);
+    battle = { name:curE.n, sprite:curE.s, filter:(curE.c&&FILT[curE.c]&&FILT[curE.c]!=='none')?FILT[curE.c]:null,
+      hp:st.hp, maxhp:st.maxhp, atk:st.atk, def:st.def,
+      phase:'input', sel:0, queue:[], invested:false, defend:false, pendKill:false, pendOver:false };
+    state='battle';
+  }
+
+  // ----- 戦闘（5つの力コマンド）-----
+  const CMD = ['かせぐ','ためる','ふやす','まもる','つかう'];
+  const CMD_DESC = ['敵こうげき＋お金が ふえる','お金（HP）を かいふく','つぎの「かせぐ」が ２ばい','うける ダメージ はんぶん','大ダメージ！でも お金つかう'];
+  function doTurn(cmd){
+    const b=battle; b.queue=[];
+    if(cmd===0){ // かせぐ：攻撃＋収入（投資済みなら2倍）
+      let raw=(b.invested?rnd(220,340):rnd(110,180)) + hero.levelMax*2 + forceCount()*45; b.invested=false;
+      const dmg=Math.max(2, raw-(b.def||0)); b.hp=Math.max(0,b.hp-dmg);
+      const inc=rnd(8,15); addHP(inc);
+      b.queue.push('ゆうしゃの しゅうにゅう！');
+      b.queue.push(b.name+'に '+dmg+' ダメージ！\n（しさん +'+inc+'万）');
+    } else if(cmd===1){ // ためる：貯金
+      const h=rnd(14,22); addHP(h);
+      b.queue.push('コツコツ ちょきん！\nしさん +'+h+'万！');
+    } else if(cmd===2){ // ふやす：次のかせぐ2倍
+      b.invested=true; b.queue.push('とうし！\nつぎの「かせぐ」が ２ばいに！');
+    } else if(cmd===3){ // まもる：次の被ダメ半減
+      b.defend=true; b.queue.push('みを まもった！\nつぎの ダメージ 半分！');
+    } else if(cmd===4){ // つかう：大ダメージ（お金を消費）
+      let raw=rnd(270,380) + hero.levelMax*2 + forceCount()*50;
+      const dmg=Math.max(2, raw-(b.def||0)); b.hp=Math.max(0,b.hp-dmg);
+      const cost=rnd(6,12); addHP(-cost);
+      b.queue.push('お金を いかして こうげき！');
+      b.queue.push(b.name+'に '+dmg+' ダメージ！\n（しさん −'+cost+'万）');
+    }
+    if(cmd===0||cmd===4) sfx('attack');
+    if(b.hp<=0){ b.queue.push(b.name+'を たおした！'); b.pendKill=true; }
+    else {
+      let ed=Math.max(1, rnd(b.atk[0],b.atk[1]));
+      if(b.defend){ ed=Math.floor(ed/2); b.defend=false; }
+      addHP(-ed);
+      b.queue.push(b.name+'の こうげき！\nしさん −'+ed+'万…');
+      setTimeout(function(){sfx('ehit');},380);
+      if(hero.hp<=BANKRUPT){ b.queue.push('しゃっきん…\nゆうしゃは 破産した…'); b.pendOver=true; }
+    }
+    b.phase='msg';
+  }
+  function advBattle(){
+    const b=battle; b.queue.shift();
+    if(b.queue.length>0) return;
+    if(b.pendOver){ endGame('over'); return; }
+    if(b.pendKill){ goChoice(); return; }   // 倒した → 倒したあとの問答へ（勝利曲は問答のBGMで鳴る）
+    b.phase='input';
+  }
+
+  // ----- 倒したあとの問答（その敵の毒キノコ：やる＝大マイナス／やめる＝＋200・力GET）-----
+  function goChoice(){
+    const e=curE;
+    // 3択：やめる(正解+200)／やる(毒-eat)／中立(±0)。順番をランダムにして「上＝いつも正解」を防ぐ
+    let o=[ {type:'good',t:e.g}, {type:'bad',t:e.b}, {type:'none',t:'いまは 決めない'} ];
+    for(let i=o.length-1;i>0;i--){ const j=rnd(0,i); const tmp=o[i]; o[i]=o[j]; o[j]=tmp; }
+    choice.opts=o; choice.sel=0; choice.phase='select'; choice.msg=''; choice.good=false; choice.pendWin=false; choice.pendOver=false;
+    state='choice';
+  }
+  function applyChoice(idx){
+    const e=curE, o=choice.opts[idx];
+    if(o.type==='bad'){           // 毒キノコに手を出した
+      const dmg=e.eat*lap; addHP(-dmg); choice.good=false;
+      choice.msg='「'+o.t+'」を えらんだ…\nそれは 毒キノコ！🍄\nしさん −'+dmg+'万！';
+      if(e.boss) choice.pendOver = (hero.hp<=BANKRUPT);
+      else if(hero.hp<=BANKRUPT) choice.pendOver=true;
+      sfx('ehit');
+    } else if(o.type==='good'){   // 正しい判断（守れた）
+      addHP(200); force(e.f); choice.good=true;
+      choice.msg='「'+o.t+'」\n'+e.f+'力で まもった！✨\nしさん ＋２００万！';
+      if(e.boss) choice.pendWin=true;             // ラスボスを断ち切った＝卒業
+      sfx('attack');
+    } else {                       // 中立（何もしない）＝損も得もなし
+      choice.good=null;
+      choice.msg='「'+o.t+'」\nなにも しなかった。\nしさんは そのまま。';
+    }
+    choice.phase='result';
+  }
+  function afterChoice(){
+    if(choice.pendOver){ endGame('over'); return; }
+    if(choice.pendWin){ endGame(lap===1?'win':'trueWin'); return; }   // 卒業/1億の曲はグッドエンドBGMで鳴る
+    nextEnemy();
+  }
+  // 裏面（2周目）：資産5000万と集めた力を引き継ぎ、敵・ダメージ2倍・ゴール1億
+  function startLap2(){ lap=2; hero.hp=GOAL; shuffle(); nextEnemy(); }
+
+  // ===== 入力 =====
+  window.addEventListener('keydown',function(e){
+    const k=e.key;
+    unlockAudio();
+    if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(k)) e.preventDefault();
+    const ok=(k==='z'||k==='Z'||k==='Enter'||k===' ');
+    const up=(k==='ArrowUp'||k==='w'||k==='W');
+    const dn=(k==='ArrowDown'||k==='s'||k==='S');
+
+    if(state==='title'){ if(ok){ if(titleReady){ introI=0; state='intro'; } else titleReady=true; } return; }
+    if(state==='intro'){ if(ok){ introI++; if(introI>=INTRO.length) startGame(); } return; }
+    if(state==='battle'){
+      const b=battle;
+      if(b.phase==='input'){
+        if(up) b.sel=(b.sel+CMD.length-1)%CMD.length;
+        else if(dn) b.sel=(b.sel+1)%CMD.length;
+        else if(ok) doTurn(b.sel);
+      } else if(b.phase==='msg'){ if(ok) advBattle(); }
+      return;
+    }
+    if(state==='choice'){
+      if(choice.phase==='select'){
+        const n=choice.opts.length;                   // 3択
+        if(up) choice.sel=(choice.sel+n-1)%n;
+        else if(dn) choice.sel=(choice.sel+1)%n;
+        else if(ok) applyChoice(choice.sel);
+      } else { if(ok) afterChoice(); }
+      return;
+    }
+    if(state==='win'){
+      if(Date.now()<=endLock) return;
+      if(up) startLap2();                             // ↑＝裏面（1億）へ
+      else if(ok||dn){ resetHero(); lap=1; state='title'; }
+      return;
+    }
+    if(state==='trueWin' || state==='over'){
+      if(ok && Date.now()>endLock){ resetHero(); lap=1; state='title'; }
+      return;
+    }
+  });
+
+  // ===== スマホ用タッチ操作 =====
+  function tapKey(key){ unlockAudio(); window.dispatchEvent(new KeyboardEvent('keydown',{key:key})); }
+  const tpb = document.querySelectorAll('#touchpad button');
+  for(let i=0;i<tpb.length;i++){
+    (function(btn){ btn.addEventListener('pointerdown', function(e){ e.preventDefault(); tapKey(btn.getAttribute('data-k')); }); })(tpb[i]);
+  }
+  cv.addEventListener('pointerdown', function(e){ e.preventDefault(); tapKey('z'); });
+
+  // ===================== 描画 =====================
+  function fillRect(x,y,w,h,col){ ctx.fillStyle=col; ctx.fillRect(x,y,w,h); }
+  function rr(x,y,w,h,r){
+    ctx.beginPath(); ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+  }
+  function dqwin(x,y,w,h){
+    rr(x,y,w,h,9); ctx.fillStyle='#000000'; ctx.fill();
+    ctx.lineWidth=2.5; ctx.strokeStyle='#ffffff'; ctx.stroke();
+  }
+  function centerText(t,y,col,size){
+    ctx.fillStyle=col; ctx.font=size+'px "MS Gothic",monospace';
+    ctx.textAlign='center'; ctx.fillText(t,240,y); ctx.textAlign='left';
+  }
+  function blinkArrow(x,y){
+    if(Math.floor(Date.now()/400)%2===0){
+      ctx.fillStyle='#f2c14e'; ctx.font='14px "MS Gothic",monospace'; ctx.fillText('▼',x,y);
+    }
+  }
+  function textLines(text,x,y,size,col,lh){
+    ctx.fillStyle=col||'#f4f4f8'; ctx.font=(size||15)+'px "MS Gothic",monospace';
+    text.split('\n').forEach((ln,i)=> ctx.fillText(ln, x, y+i*(lh||24)));
+  }
+
+  function bgTile(c,wr){ const h=((c*31)+(wr*17))%100; if(h<9) return 'T'; if(h<15) return '~'; if(h<19) return 'f'; return '.'; }
+  function drawTitleBG(){
+    const TILE=32, COLS=15, ROWS=13, scroll=Date.now()/55, off=scroll%TILE, base=Math.floor(scroll/TILE);
+    for(let r=-1;r<=ROWS;r++) for(let c=0;c<COLS;c++){
+      const wr=base+r, x=c*TILE, y=Math.round(r*TILE-off), ch=bgTile(c,wr);
+      fillRect(x,y,TILE,TILE,(c+wr)%2?'#2f6e2f':'#357a35');
+      if(ch==='T'){ fillRect(x+13,y+18,6,12,'#5b3f24');
+        ctx.fillStyle='#27551f'; ctx.beginPath(); ctx.arc(x+16,y+13,11,0,7); ctx.fill(); }
+      else if(ch==='~'){ fillRect(x,y,TILE,TILE,'#2f6fd0'); fillRect(x+3,y+7,TILE-6,3,'#5a93ea'); }
+      else if(ch==='f'){ fillRect(x+10,y+12,7,7,'#ef93b1'); fillRect(x+15,y+15,6,6,'#f2c14e'); }
+    }
+    fillRect(0,0,480,416,'rgba(4,4,16,0.5)');
+  }
+  function drawTitle(){
+    fillRect(0,0,480,416,'#0a0a1e');
+    if(!drawImageContain(IMG.title, 480, 416)){
+      drawTitleBG();
+      dqwin(40,22,400,98);
+      centerText('学長クエスト',62,'#f2c14e',28);
+      centerText('〜 小金持ち山 とうちょうの道 〜',96,'#cfcfe6',14);
+    }
+    if(Math.floor(Date.now()/500)%2===0){
+      ctx.font='16px "MS Gothic",monospace'; ctx.textAlign='center';
+      const tp = titleReady ? 'もう一度 Ｚ で ぼうけんへ！' : 'Ｚキー（タップ）で はじめる';
+      ctx.fillStyle='rgba(0,0,0,0.65)'; ctx.fillText(tp,241,357);
+      ctx.fillStyle='#ffffff'; ctx.fillText(tp,240,356);
+      ctx.textAlign='left';
+    }
+  }
+  function drawIntro(){
+    fillRect(0,0,480,416,'#0a1830');
+    const im=IMG.sensei;
+    if(im && im.complete && im.naturalWidth){
+      const s=Math.max(480/im.naturalWidth, 416/im.naturalHeight);
+      ctx.imageSmoothingEnabled=true;
+      ctx.drawImage(im, Math.round((480-im.naturalWidth*s)/2), -78, Math.round(im.naturalWidth*s), Math.round(im.naturalHeight*s));
+      ctx.imageSmoothingEnabled=false;
+    }
+    dqwin(20,258,440,138);
+    textLines(INTRO[introI]||'', 38, 292, 15, '#f4f4f8', 28);
+    blinkArrow(446,384);
+  }
+
+  function drawMountainBar(){
+    const g=goal(), x=8,y=4,w=464,h=30; dqwin(x,y,w,h);
+    ctx.fillStyle='#cfe'; ctx.font='11px "MS Gothic",monospace';
+    const cap = lap===2 ? '１億への道  ' : '小金持ち山  ';
+    ctx.fillText(cap+hero.hp+' / '+g+'万', x+12, y+15);
+    const bx=x+12,by=y+19,bw=w-24,bh=7, t=Math.max(0,Math.min(1,(hero.hp-BANKRUPT)/(g-BANKRUPT)));
+    fillRect(bx,by,bw,bh,'#23233a');
+    fillRect(bx,by,Math.round(bw*t),bh, lap===2?'#f2c14e':'#5dca8a');
+  }
+  function drawForceDots(){
+    dqwin(324,38,148,122);
+    ctx.fillStyle='#f4f4f8'; ctx.font='12px "MS Gothic",monospace';
+    ctx.fillText('ゆうしゃの 力',336,55);
+    const FC=[['稼ぐ','#ff8a5a'],['貯める','#5dca8a'],['増やす','#f2c14e'],['守る','#6fb0e0'],['使う','#d48ae0']];
+    ctx.font='12px "MS Gothic",monospace';
+    FC.forEach((fc,i)=>{
+      const y=76+i*18;
+      ctx.fillStyle='#cfcfe6'; ctx.fillText(fc[0],336,y);
+      for(let d=0;d<3;d++){
+        const cx=410+d*17, cy=y-4, got=hero.forces[fc[0]]>d;
+        ctx.beginPath(); ctx.arc(cx,cy,5,0,7);
+        if(got){ ctx.fillStyle=fc[1]; ctx.fill(); }
+        else { ctx.fillStyle='#15151f'; ctx.fill(); ctx.lineWidth=1.2; ctx.strokeStyle='#7a7a92'; ctx.stroke(); }
+      }
+    });
+  }
+  function drawEnemyHP(){
+    const b=battle, x=40, y=262, w=242, h=30; dqwin(x,y,w,h);
+    ctx.fillStyle='#f4f4f8'; ctx.font='12px "MS Gothic",monospace';
+    ctx.fillText('てきの HP  '+b.hp+' / '+b.maxhp, x+12, y+15);
+    const bx=x+12, by=y+19, bw=w-24, bh=7, t=Math.max(0, b.hp/b.maxhp);
+    fillRect(bx,by,bw,bh,'#3a2020');
+    fillRect(bx,by,Math.round(bw*t),bh,'#e24b4a');
+  }
+  function dangerTint(){
+    if(hero.hp >= 0) return;
+    const d=Math.min(1,(-hero.hp)/500);
+    let r,g,bl;
+    if(d<0.5){ const t=d/0.5; r=230; g=Math.round(205-95*t); bl=30; }
+    else { const t=(d-0.5)/0.5; r=Math.round(225-15*t); g=Math.round(110-85*t); bl=22; }
+    const base=0.14+0.20*d;
+    const a=(Math.floor(Date.now()/350)%2===0)?base:base*0.55;
+    fillRect(0,0,480,416,'rgba('+r+','+g+','+bl+','+a.toFixed(3)+')');
+  }
+
+  function drawBattle(){
+    const b=battle;
+    fillRect(0,0,480,416,'#000000');
+    if(b.filter) ctx.filter=b.filter;
+    drawSprite(IMG[b.sprite], 156, 176, 164, 150);   // 敵（左・中央寄り）
+    ctx.filter='none';
+    drawSpriteFlip(IMG.hero, 398, 236, 148, 150);     // 勇者（右・敵の方を向く）
+    fillRect(315,38,5,270,'#26263e'); fillRect(317,38,2,270,'#e8e8f4');
+    drawMountainBar();
+    drawForceDots();
+    drawEnemyHP();
+    // コマンド窓（左下）
+    dqwin(8,312,146,98);
+    const cy=[334,352,370,388,406];
+    ctx.font='14px "MS Gothic",monospace';
+    CMD.forEach((name,i)=>{
+      const on=(b.phase==='input'&&b.sel===i);
+      if(on){ ctx.fillStyle='#f2c14e'; ctx.fillText('▸',16,cy[i]); }
+      ctx.fillStyle=on?'#f2c14e':'#f4f4f8'; ctx.fillText(name,32,cy[i]);
+    });
+    // メッセージ窓（右下）
+    dqwin(162,312,310,98);
+    if(b.phase==='input'){
+      ctx.fillStyle='#f4f4f8'; ctx.font='15px "MS Gothic",monospace';
+      ctx.fillText(b.name,178,340);
+      ctx.fillStyle='#f2c14e'; ctx.font='14px "MS Gothic",monospace';
+      ctx.fillText('▸ '+CMD[b.sel],178,368);
+      ctx.fillStyle='#bfe0ff'; ctx.font='13px "MS Gothic",monospace';
+      ctx.fillText(CMD_DESC[b.sel],178,392);
+    } else {
+      textLines(b.queue[0]||'',178,344,15,'#f4f4f8',26);
+      blinkArrow(452,402);
+    }
+    dangerTint();
+  }
+
+  // 倒したあとの問答画面
+  function drawChoice(){
+    const e=curE;
+    fillRect(0,0,480,416,'#000018');
+    if(choice.filter) ctx.filter=choice.filter;
+    drawSprite(IMG.hero, 84, 168, 132, 200);          // 勇者（左）
+    ctx.filter='none';
+    drawMountainBar();
+    if(choice.phase==='select'){
+      ctx.fillStyle='#5dca8a'; ctx.font='14px "MS Gothic",monospace';
+      ctx.fillText(e.n+'を たおした！',176,52);
+      dqwin(176,62,296,80);
+      textLines(e.q, 192, 90, 15, '#f4f4f8', 26);
+      // 3択（順番ランダム・色分けなし＝どれが正解か文言で考える）
+      dqwin(176,150,296,134);
+      (choice.opts||[]).forEach((o,i)=>{
+        const y=180+i*40, on=(choice.sel===i);
+        ctx.font='14px "MS Gothic",monospace';
+        if(on){ ctx.fillStyle='#f2c14e'; ctx.fillText('▸',188,y); }
+        ctx.fillStyle=on?'#f2c14e':'#f4f4f8'; ctx.fillText(o.t,206,y);
+      });
+    } else {
+      dqwin(176,150,296,156);
+      const rc = choice.good===true ? '#7ef0b0' : (choice.good===false ? '#ff9a8a' : '#f4f4f8');  // 正解=緑／毒キノコ=赤／中立(資産そのまま)=白
+      textLines(choice.msg, 192, 188, 15, rc, 28);
+      blinkArrow(456,294);
+    }
+    dangerTint();
+  }
+
+  function drawWin(){
+    fillRect(0,0,480,416,'#04261c');
+    drawCover(IMG.goodend, 480, 416, true);
+    fillRect(0,286,480,130,'rgba(0,0,0,0.6)');
+    centerText('🎓 小金持ち山 とうちょう！',310,'#f2c14e',17);
+    centerText('しさん '+hero.hp+'万 ＝ 経済的自由！',332,'#ffffff',13);
+    const allF = forceCount()>=5;
+    centerText(allF?'５つの力コンプ！ 真の卒業！':'ゆうしゃは 卒業した！',352, allF?'#f2c14e':'#7ef0b0',13);
+    if(Math.floor(Date.now()/450)%2===0) centerText('↑ うらめん（１億円）に ちょうせん！',378,'#ffd86a',13);
+    centerText('Ｚ／↓：タイトルへ',400,'#dfe6f0',12);
+  }
+  function drawTrueWin(){
+    fillRect(0,0,480,416,'#0a1638');
+    drawCover(IMG.goodend, 480, 416, true);
+    fillRect(0,286,480,130,'rgba(0,0,0,0.62)');
+    centerText('👑 １億円 たっせい！',312,'#ffd86a',19);
+    centerText('あなたは ほんとうの お金持ち！',338,'#ffffff',13);
+    centerText('５つの力を マスターした ゆうしゃ！',360,'#7ef0b0',13);
+    if(Math.floor(Date.now()/500)%2===0) centerText('（Ｚ で タイトルへ）',396,'#dfe6f0',12);
+  }
+  function drawOver(){
+    fillRect(0,0,480,416,'#1a0808');
+    drawCover(IMG.badend, 480, 416, false);
+    fillRect(0,300,480,116,'rgba(0,0,0,0.6)');
+    centerText('💸 破産…',330,'#ff6a5a',20);
+    centerText('毒キノコには 手を出さない。',358,'#ffffff',14);
+    centerText('５つの力で もういちど ちょうせん！',380,'#ffffff',14);
+    if(Math.floor(Date.now()/500)%2===0) centerText('（Ｚ で もういちど）',402,'#dfe6f0',12);
+  }
+
+  let running=true;
+  function render(){
+    if(audioOn){ const bg={title:'opening',intro:'opening',battle:'battle',choice:'fanfare',win:'good',trueWin:'good',over:'bad'}[state]; if(bg) playBGM(bg); }  // 戦闘＝戦闘BGM／倒したあとの問答＝勝利ファンファーレ（曲を区切る）
+    try{
+      if(state==='title') drawTitle();
+      else if(state==='intro') drawIntro();
+      else if(state==='battle') drawBattle();
+      else if(state==='choice') drawChoice();
+      else if(state==='win') drawWin();
+      else if(state==='trueWin') drawTrueWin();
+      else if(state==='over') drawOver();
+    }catch(err){ console.error(err); }
+    if(running) requestAnimationFrame(render);
+  }
+  render();
+
+  // 動作確認用フック
+  window.__demo = {
+    title(){ state='title'; },
+    intro(){ introI=0; state='intro'; },
+    start(){ startGame(); },
+    fight(i){ resetHero(); curE = (i!=null)? ENEMIES[i] : ENEMIES[rnd(0,ENEMIES.length-1)]; startBattle(); },
+    bossfight(){ resetHero(); hero.hp=5000; curE=BOSS; startBattle(); },
+    kill(){ if(battle){ battle.hp=0; battle.pendKill=true; battle.queue=['たおした！']; battle.phase='msg'; } },
+    choice(){ if(curE) goChoice(); },
+    win(){ endGame('win'); },
+    trueWin(){ endGame('trueWin'); },
+    over(){ endGame('over'); },
+    lap2(){ startLap2(); },
+    sethp(n){ hero.hp=n; },
+    setforce(f){ force(f); },
+    choiceOpts(){ return choice.opts? choice.opts.map(function(o){return o.type+'|'+o.t;}) : null; },
+    state(){ return state; },
+    lap(){ return lap; },
+    count(){ return ENEMIES.length; },
+    stop(){ running=false; },
+    draw(){ render(); }
+  };
+})();
+</script>
+</body>
+</html>
